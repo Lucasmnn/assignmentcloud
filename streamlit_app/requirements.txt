@@ -1,3 +1,5 @@
 streamlit
 functions-framework==3.*
 requests==2.32.*
+pandas
+python-dotenv
