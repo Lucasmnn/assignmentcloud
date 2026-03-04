@@ -14,7 +14,7 @@ load_dotenv(_env_path)
 
 # ─────────────────────────── Page Config ───────────────────────────
 st.set_page_config(
-    page_title="🎬 TMDB Movie Catalog",
+    page_title="🎬 Movie Catalog",
     page_icon="🎬",
     layout="wide",
     initial_sidebar_state="expanded",
@@ -36,12 +36,21 @@ html, body, [class*="css"] {
     font-family: 'Inter', sans-serif;
 }
 
-/* ── Hide Streamlit branding ── */
+/* ── Hide Streamlit branding & sidebar close button ── */
 #MainMenu {visibility: hidden;}
 footer {visibility: hidden;}
 header {visibility: hidden;}
 
-/* ── Sidebar ── */
+/* Hide the sidebar collapse/close button so it stays permanently open */
+button[data-testid="stSidebarCollapseButton"],
+[data-testid="stSidebarCollapsedControl"],
+[data-testid="collapsedControl"],
+button[kind="headerNoPadding"] {
+    display: none !important;
+    visibility: hidden !important;
+}
+
+/* ── Sidebar styling ── */
 [data-testid="stSidebar"] {
     background: linear-gradient(180deg, #0f0f23 0%, #1a1a3e 100%);
 }
@@ -52,6 +61,20 @@ header {visibility: hidden;}
     color: #ffffff !important;
     font-weight: 700;
     letter-spacing: -0.02em;
+}
+
+/* Clear-all filters button */
+.clear-filters-btn button {
+    background: rgba(239, 83, 80, 0.12) !important;
+    color: #ef5350 !important;
+    border: 1px solid rgba(239, 83, 80, 0.3) !important;
+    border-radius: 12px !important;
+    font-weight: 600 !important;
+    transition: all 0.2s ease !important;
+}
+.clear-filters-btn button:hover {
+    background: rgba(239, 83, 80, 0.25) !important;
+    border-color: #ef5350 !important;
 }
 
 /* ── Metric cards ── */
@@ -203,16 +226,14 @@ div[data-testid="stMetric"] [data-testid="stMetricValue"] {
 
 /* ── Section title ── */
 .section-title {
-    font-size: 1.5em;
-    font-weight: 700;
-    color: #ffffff;
-    margin-bottom: 4px;
-    letter-spacing: -0.02em;
-}
-.section-subtitle {
-    font-size: 0.95em;
-    color: #8b8ba7;
-    margin-bottom: 24px;
+    font-size: 2.4em;
+    font-weight: 800;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 6px;
+    letter-spacing: -0.03em;
 }
 
 /* ── No results ── */
@@ -611,12 +632,18 @@ def main():
     min_rating = float(df["avg_rating"].min())
     max_rating = float(df["avg_rating"].max())
 
-    # ────────── Sidebar Filters ──────────
+    # ────────── Page Header ──────────
+    st.markdown(
+        '<div class="section-title">🎬 Movie Catalog</div>',
+        unsafe_allow_html=True,
+    )
+
+    # ────────── Sidebar Filters (always visible) ──────────
     with st.sidebar:
-        st.markdown("## 🎬 Movie Catalog")
+        st.markdown("## 🎬 Filters")
         st.markdown('<div class="custom-divider"></div>', unsafe_allow_html=True)
 
-        # Title search with autocomplete
+        # Title search
         st.markdown("#### 🔍 Search by Title")
         search_title = st.selectbox(
             "Type to search...",
@@ -624,6 +651,7 @@ def main():
             index=0,
             placeholder="Start typing a movie title...",
             label_visibility="collapsed",
+            key="filter_title",
         )
 
         st.markdown('<div class="custom-divider"></div>', unsafe_allow_html=True)
@@ -635,6 +663,7 @@ def main():
             options=all_genres,
             default=[],
             label_visibility="collapsed",
+            key="filter_genres",
         )
 
         st.markdown('<div class="custom-divider"></div>', unsafe_allow_html=True)
@@ -647,6 +676,7 @@ def main():
             options=sorted(language_options.keys()),
             default=[],
             label_visibility="collapsed",
+            key="filter_languages",
         )
         selected_languages = [language_options[label] for label in selected_lang_labels]
 
@@ -661,6 +691,7 @@ def main():
             value=(round(min_rating, 1), round(max_rating, 1)),
             step=0.1,
             label_visibility="collapsed",
+            key="filter_rating",
         )
 
         st.markdown('<div class="custom-divider"></div>', unsafe_allow_html=True)
@@ -673,6 +704,7 @@ def main():
             max_value=max_year,
             value=(min_year, max_year),
             label_visibility="collapsed",
+            key="filter_year",
         )
 
         st.markdown('<div class="custom-divider"></div>', unsafe_allow_html=True)
@@ -684,7 +716,20 @@ def main():
             ["Rating (High → Low)", "Rating (Low → High)",
              "Year (Newest)", "Year (Oldest)", "Title (A → Z)"],
             label_visibility="collapsed",
+            key="filter_sort",
         )
+
+        st.markdown('<div class="custom-divider"></div>', unsafe_allow_html=True)
+
+        # Clear all filters button
+        st.markdown('<div class="clear-filters-btn">', unsafe_allow_html=True)
+        if st.button("🗑️ Clear All Filters", use_container_width=True, key="clear_filters"):
+            for k in ["filter_title", "filter_genres", "filter_languages", "filter_rating", "filter_year", "filter_sort"]:
+                if k in st.session_state:
+                    del st.session_state[k]
+            st.session_state.page = 1
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
 
     # ────────── Apply Filters ──────────
     filtered = df.copy()
@@ -731,18 +776,7 @@ def main():
     sort_col, sort_asc = sort_map[sort_option]
     filtered = filtered.sort_values(sort_col, ascending=sort_asc).reset_index(drop=True)
 
-    # ────────── Header & Metrics ──────────
-    st.markdown(
-        '<div class="section-title">🎬 TMDB Movie Catalog</div>',
-        unsafe_allow_html=True,
-    )
-    st.markdown(
-        '<div class="section-subtitle">'
-        "Explore, filter, and discover movies from the TMDB dataset"
-        "</div>",
-        unsafe_allow_html=True,
-    )
-
+    # ────────── Metrics (rendered after filtering for accurate counts) ──────────
     col1, col2, col3, col4 = st.columns(4)
     col1.metric("🎞️ Total Movies", f"{len(df):,}")
     col2.metric("🔎 Matching", f"{len(filtered):,}")
