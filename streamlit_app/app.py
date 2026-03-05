@@ -8,9 +8,10 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 
-# Load .env from parent directory (project root)
-_env_path = Path(__file__).resolve().parent.parent / ".env"
-load_dotenv(_env_path)
+# Load .env – try same directory first (Docker), then parent (local dev)
+_app_dir = Path(__file__).resolve().parent
+load_dotenv(_app_dir / ".env")
+load_dotenv(_app_dir.parent / ".env")
 
 # ─────────────────────────── Page Config ───────────────────────────
 st.set_page_config(
