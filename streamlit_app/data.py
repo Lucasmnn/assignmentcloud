@@ -4,24 +4,84 @@ from typing import Optional
 import pandas as pd
 import requests
 import streamlit as st
-
-from config import API_URL, TMDB_API_KEY, CACHE_TTL_MOVIES, CACHE_TTL_TMDB
+from google.cloud import bigquery
+from config import (
+    API_URL, TMDB_API_KEY, CACHE_TTL_MOVIES, CACHE_TTL_TMDB,
+    BQ_PROJECT_ID, BQ_TABLE_ID
+)
 
 
 @st.cache_data(ttl=300, show_spinner=False)
 def fetch_movies() -> pd.DataFrame:
-    """Fetch movie data from the Cloud Function API with 5-minute cache."""
+    """Fetch movie data using the best available method: API -> Direct BQ -> TMDB."""
+    
+    # Strategy 1: Attempt to fetch from API
     try:
-        response = requests.get(API_URL, timeout=15)
+        response = requests.get(API_URL, timeout=5)
+        content_type = response.headers.get("Content-Type", "").lower()
+        
+        # If API returns HTML, it's likely the Streamlit app itself (misconfigured)
+        if "text/html" in content_type:
+            # Silently fallback to direct BQ if possible
+            if BQ_PROJECT_ID != "your-project-id":
+                return _fetch_movies_direct_bigquery()
+            return _fetch_movies_direct_tmdb() if TMDB_API_KEY else pd.DataFrame()
+
         response.raise_for_status()
         data = response.json()
         if isinstance(data, dict) and "movie_details" in data:
             data = data["movie_details"]
         df = pd.DataFrame(data)
-        return df
-    except requests.RequestException as e:
-        st.error(f"❌ Error fetching data from API: {e}")
+        if not df.empty:
+            return _post_process_movies(df)
+            
+    except Exception:
+        # Strategy 2: Attempt direct BigQuery connection
+        if BQ_PROJECT_ID != "your-project-id":
+            df = _fetch_movies_direct_bigquery()
+            if not df.empty:
+                return df
+
+    # Strategy 3: Fallback to TMDB
+    if TMDB_API_KEY:
+        return _fetch_movies_direct_tmdb()
+    
+    return pd.DataFrame()
+
+
+def _fetch_movies_direct_bigquery() -> pd.DataFrame:
+    """Connect directly to BigQuery from the app."""
+    try:
+        # Use simple client initialization (works on Local & Cloud Run)
+        client = bigquery.Client(project=BQ_PROJECT_ID if BQ_PROJECT_ID != "your-project-id" else None)
+        query = f"""
+            SELECT movieId, title, genres, release_year, language,
+                   CAST(avg_rating AS FLOAT64) as avg_rating
+            FROM `{BQ_PROJECT_ID}.{BQ_TABLE_ID}`
+            ORDER BY release_year DESC
+        """
+        query_job = client.query(query)
+        df = query_job.to_dataframe()
+        return _post_process_movies(df)
+    except Exception as e:
+        # If both API and BQ fail, we'll hit the TMDB fallback in the main loop
         return pd.DataFrame()
+
+
+def _post_process_movies(df: pd.DataFrame) -> pd.DataFrame:
+    """Standardize movie data regardless of source."""
+    if df.empty:
+        return df
+    
+    # Handle types and missing values
+    df["avg_rating"] = pd.to_numeric(df.get("avg_rating", 0), errors="coerce").fillna(0.0)
+    df["release_year"] = pd.to_numeric(df.get("release_year", 0), errors="coerce").fillna(0).astype(int)
+    
+    # Normalize rating to 5-star scale
+    if df["avg_rating"].max() > 5.1:
+        df["avg_rating"] = df["avg_rating"] / 2.0
+    
+    return df.drop_duplicates(subset=["movieId"])
 
 
 def _fetch_movies_direct_tmdb() -> pd.DataFrame:

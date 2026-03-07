@@ -15,6 +15,10 @@ API_URL: str = os.environ.get(
     "API_URL", "https://fonctionsassignment1-923500071692.europe-west6.run.app"
 )
 
+# BigQuery Direct Connection Config (Alternative to API)
+BQ_PROJECT_ID: str = os.environ.get("BQ_PROJECT_ID", "your-project-id")
+BQ_TABLE_ID: str = os.environ.get("BQ_TABLE_ID", "your_dataset.merged_movies_20m")
+
 
 MOVIES_PER_PAGE: int = 24
 CACHE_TTL_MOVIES: int = 300       
