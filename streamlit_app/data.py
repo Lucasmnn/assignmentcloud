@@ -20,7 +20,14 @@ def fetch_movies() -> pd.DataFrame:
     try:
         response = requests.get(API_URL, timeout=15)
         response.raise_for_status()
-        data = response.json()
+        
+        try:
+            data = response.json()
+        except ValueError as json_err:
+            content_snippet = response.text[:200].replace("\n", " ")
+            st.error(f"❌ API returned non-JSON data (Content-Type: {response.headers.get('Content-Type')})")
+            st.info(f"Snippet: {content_snippet}...")
+            return pd.DataFrame()
 
         if isinstance(data, dict) and "movie_details" in data:
             data = data["movie_details"]

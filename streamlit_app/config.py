@@ -11,7 +11,9 @@ TMDB_API_KEY: str = os.environ.get("TMDB_API_KEY", "") or os.environ.get("TMDB_A
 TMDB_IMG_BASE: str = "https://image.tmdb.org/t/p/w500"
 TMDB_IMG_SMALL: str = "https://image.tmdb.org/t/p/w200"
 
-API_URL: str = "https://fonctionsassignment1-923500071692.europe-west6.run.app"
+API_URL: str = os.environ.get(
+    "API_URL", "https://fonctionsassignment1-923500071692.europe-west6.run.app"
+)
 
 
 MOVIES_PER_PAGE: int = 24
