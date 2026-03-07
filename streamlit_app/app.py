@@ -120,6 +120,8 @@ def main() -> None:
             unsafe_allow_html=True,
         )
     else:
+        start_idx = (current_page - 1) * MOVIES_PER_PAGE
+        end_idx = min(start_idx + MOVIES_PER_PAGE, total_movies)
         page_movies = filtered.iloc[start_idx:end_idx]
         # Final safety deduplication to prevent key collisions
         page_movies = page_movies.drop_duplicates(subset=["movieId"])
