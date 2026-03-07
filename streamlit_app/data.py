@@ -50,32 +50,46 @@ def fetch_movies() -> pd.DataFrame:
 
 
 def _fetch_movies_direct_bigquery() -> pd.DataFrame:
-    """Connect directly to BigQuery from the app and join Movie/Rating tables."""
+    """Connect directly to BigQuery and attempt to fetch actual languages."""
+    client = bigquery.Client(project=BQ_PROJECT_ID)
+    
+    # Strategy A: Try to fetch with actual language column
     try:
-        # User confirmed project assignment-1-489109 and dataset assignment1
-        client = bigquery.Client(project=BQ_PROJECT_ID)
-        
-        # We join metadata with ratings to calculate the avg_rating for the catalog
-        query = f"""
+        query_with_lang = f"""
             SELECT 
-                m.movieId, 
-                m.title, 
-                m.genres,
+                m.movieId, m.title, m.genres,
                 SAFE_CAST(REGEXP_EXTRACT(m.title, r'\\((\\d{{4}})\\)') AS INT64) as release_year,
                 AVG(CAST(r.rating AS FLOAT64)) as avg_rating,
-                'en' as language
+                m.language
             FROM `{BQ_PROJECT_ID}.assignment1.Movie` as m
             LEFT JOIN `{BQ_PROJECT_ID}.assignment1.Rating` as r ON m.movieId = r.movieId
-            GROUP BY 1, 2, 3
+            GROUP BY 1, 2, 3, 6
             ORDER BY release_year DESC
         """
-        query_job = client.query(query)
+        query_job = client.query(query_with_lang)
         df = query_job.to_dataframe()
         return _post_process_movies(df)
-    except Exception as e:
-        # Logging error to Streamlit for easier debugging on user's end
-        st.error(f"❌ BigQuery Direct Fetch Failed: {e}")
-        return pd.DataFrame()
+        
+    except Exception:
+        # Strategy B: Fallback to hardcoded 'en' if 'language' column is missing in BQ
+        try:
+            query_no_lang = f"""
+                SELECT 
+                    m.movieId, m.title, m.genres,
+                    SAFE_CAST(REGEXP_EXTRACT(m.title, r'\\((\\d{{4}})\\)') AS INT64) as release_year,
+                    AVG(CAST(r.rating AS FLOAT64)) as avg_rating,
+                    'en' as language
+                FROM `{BQ_PROJECT_ID}.assignment1.Movie` as m
+                LEFT JOIN `{BQ_PROJECT_ID}.assignment1.Rating` as r ON m.movieId = r.movieId
+                GROUP BY 1, 2, 3
+                ORDER BY release_year DESC
+            """
+            query_job = client.query(query_no_lang)
+            df = query_job.to_dataframe()
+            return _post_process_movies(df)
+        except Exception as e:
+            st.error(f"❌ BigQuery Fetch Failed: {e}")
+            return pd.DataFrame()
 
 
 def _post_process_movies(df: pd.DataFrame) -> pd.DataFrame:
