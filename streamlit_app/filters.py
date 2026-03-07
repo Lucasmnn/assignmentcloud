@@ -68,55 +68,77 @@ def render_sidebar_filters(df: pd.DataFrame) -> tuple[dict, list[str]]:
 
     with st.sidebar:
         st.markdown("## 🎬 Filters")
+        st.markdown('<div class="custom-divider"></div>', unsafe_allow_html=True)
 
+        # Genre filter
+        st.markdown("#### 🎭 Genre")
         selected_genres = st.multiselect(
-            "🎭 Genre",
+            "Select genres",
             options=all_genres,
             default=[],
+            label_visibility="collapsed",
             key="filter_genres",
         )
 
+        st.markdown('<div class="custom-divider"></div>', unsafe_allow_html=True)
+
+        # Language filter
+        st.markdown("#### 🌐 Language")
         language_options = {get_language_label(code): code for code in all_languages}
         selected_lang_labels = st.multiselect(
-            "🌐 Language",
+            "Select languages",
             options=sorted(language_options.keys()),
             default=[],
+            label_visibility="collapsed",
             key="filter_languages",
         )
         selected_languages = [language_options[lbl] for lbl in selected_lang_labels]
 
+        st.markdown('<div class="custom-divider"></div>', unsafe_allow_html=True)
+
+        # Rating filter
+        st.markdown("#### ⭐ Average Rating")
         rating_range = st.slider(
-            "⭐ Rating",
+            "Rating range",
             min_value=round(min_rating, 1),
             max_value=round(max_rating, 1),
             value=(round(min_rating, 1), round(max_rating, 1)),
             step=0.1,
+            label_visibility="collapsed",
             key="filter_rating",
         )
 
+        st.markdown('<div class="custom-divider"></div>', unsafe_allow_html=True)
+
+        # Year filter
+        st.markdown("#### 📅 Release Year")
         year_range = st.slider(
-            "📅 Year",
+            "Year range",
             min_value=min_year,
             max_value=max_year,
             value=(min_year, max_year),
+            label_visibility="collapsed",
             key="filter_year",
         )
 
+        st.markdown('<div class="custom-divider"></div>', unsafe_allow_html=True)
+
+        # Sort
+        st.markdown("#### 📊 Sort by")
         sort_option = st.selectbox(
-            "📊 Sort by",
+            "Sort option",
             list(SORT_OPTIONS.keys()),
+            label_visibility="collapsed",
             key="filter_sort",
         )
 
-        st.markdown("")
-        st.markdown('<div class="clear-filters-btn">', unsafe_allow_html=True)
+        st.markdown('<div class="custom-divider"></div>', unsafe_allow_html=True)
         st.button(
             "🗑️ Clear All Filters",
             on_click=reset_filters,
             use_container_width=True,
             key="clear_filters"
         )
-        st.markdown("</div>", unsafe_allow_html=True)
 
     sidebar_vals = {
         "selected_genres": selected_genres,

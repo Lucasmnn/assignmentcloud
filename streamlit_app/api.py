@@ -24,7 +24,6 @@ def get_movie_titles(request):
                 CAST(avg_rating AS FLOAT64) as avg_rating
             FROM `your-project-id.your_dataset.merged_movies_20m`
             ORDER BY release_year DESC
-            LIMIT 1000
         """
         
         # Note: If you haven't deployed the BigQuery table yet, 

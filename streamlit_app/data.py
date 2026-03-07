@@ -10,81 +10,31 @@ from config import API_URL, TMDB_API_KEY, CACHE_TTL_MOVIES, CACHE_TTL_TMDB
 
 @st.cache_data(ttl=CACHE_TTL_MOVIES, show_spinner=False)
 def fetch_movies() -> pd.DataFrame:
-    """Fetch the full movie catalog from the BigQuery-backed API or TMDB fallback."""
+    """Fetch movie data from the BigQuery-backed API with 5-minute cache."""
     try:
         response = requests.get(API_URL, timeout=15)
         response.raise_for_status()
+        data = response.json()
+        if isinstance(data, dict) and "movie_details" in data:
+            data = data["movie_details"]
+        df = pd.DataFrame(data)
         
-        try:
-            data = response.json()
-            if isinstance(data, dict) and "movie_details" in data:
-                data = data["movie_details"]
-            df = pd.DataFrame(data)
+        # Basic cleanup: handle missing ratings/years
+        if not df.empty:
+            df["avg_rating"] = df["avg_rating"].fillna(0.0)
+            df["release_year"] = df["release_year"].fillna(0).astype(int)
+            # Normalization safety: if backend uses 0-10, scale to 0-5
+            if df["avg_rating"].max() > 5.1:
+                df["avg_rating"] = df["avg_rating"] / 2.0
             
-            if not df.empty:
-                # Format for frontend (Rating 0-10 -> 0-5, Genre ID -> Names)
-                return _format_catalog_data(df)
-            return df
-            
-        except ValueError:
-            # Fallback to TMDB directly
-            if TMDB_API_KEY:
-                # Silenced warning for cleaner UI
-                return _fetch_movies_direct_tmdb()
-            else:
-                st.error("❌ API loop detected and `TMDB_API_KEY` is missing.")
-                return pd.DataFrame()
-
-    except requests.RequestException:
+            return df.drop_duplicates(subset=["movieId"])
+        return df
+    except requests.RequestException as e:
+        # Fallback to TMDB directly if API is down
         if TMDB_API_KEY:
             return _fetch_movies_direct_tmdb()
-        st.error("❌ Error: API is unreachable and no TMDB fallback available.")
+        st.error(f"❌ Error fetching data from API: {e}")
         return pd.DataFrame()
-
-
-def _format_catalog_data(df: pd.DataFrame) -> pd.DataFrame:
-    """Normalize ratings and map genre IDs to names for consistent display."""
-    # TMDB Genre ID to Name mapping (standard TMDB IDs)
-    GENRE_MAP = {
-        28: "Action", 12: "Adventure", 16: "Animation", 35: "Comedy",
-        80: "Crime", 99: "Documentary", 18: "Drama", 10751: "Family",
-        14: "Fantasy", 36: "History", 27: "Horror", 10402: "Music",
-        9648: "Mystery", 10749: "Romance", 878: "Sci-Fi", 10770: "TV Movie",
-        53: "Thriller", 10752: "War", 37: "Western",
-        # ML-20M custom genres (common mappings)
-        "Action": "Action", "Adventure": "Adventure", "Animation": "Animation",
-        "Children": "Children", "Comedy": "Comedy", "Crime": "Crime",
-        "Documentary": "Documentary", "Drama": "Drama", "Fantasy": "Fantasy",
-        "Film-Noir": "Film-Noir", "Horror": "Horror", "Musical": "Musical",
-        "Mystery": "Mystery", "Romance": "Romance", "Sci-Fi": "Sci-Fi",
-        "Thriller": "Thriller", "War": "War", "Western": "Western"
-    }
-
-    def _map_genres(g_str):
-        if not g_str or pd.isna(g_str): return "Unknown"
-        # Handle both list of IDs (from TMDB) and pipe-separated names (from BigQuery)
-        parts = str(g_str).split("|")
-        mapped = []
-        for p in parts:
-            try:
-                # If numeric string, map ID
-                gid = int(p)
-                mapped.append(GENRE_MAP.get(gid, p))
-            except ValueError:
-                # If name string, use as is (or map for consistency)
-                mapped.append(GENRE_MAP.get(p, p))
-        return "|".join(dict.fromkeys(mapped)) # Deduplicate
-
-    # Ratings: Normalize to 5-star scale if values look like 0-10 or 0-20
-    if not df.empty and df["avg_rating"].max() > 5.1:
-        # If max is > 10, it might be 0-100 or something else, but 0-10 is most common
-        scale_factor = 20.0 if df["avg_rating"].max() > 10.1 else 2.0
-        df["avg_rating"] = df["avg_rating"] / scale_factor
-
-    df["genres"] = df["genres"].apply(_map_genres)
-    
-    # Final safety deduplication
-    return df.drop_duplicates(subset=["movieId"])
 
 
 def _fetch_movies_direct_tmdb() -> pd.DataFrame:
