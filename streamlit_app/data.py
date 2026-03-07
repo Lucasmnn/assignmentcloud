@@ -25,7 +25,7 @@ def fetch_movies() -> pd.DataFrame:
         except ValueError:
             # Fallback: If API returns HTML (loop/IAP), try direct TMDB fetch
             if TMDB_API_KEY:
-                st.warning("⚠️ API_URL returned HTML. Falling back to direct TMDB fetch.")
+                # Silenced warning as requested by user for cleaner UI
                 return _fetch_movies_direct_tmdb()
             else:
                 st.error("❌ API_URL returned HTML (Self-loop) and `TMDB_API_KEY` is missing from environment or .env.")
@@ -53,8 +53,8 @@ def _fetch_movies_direct_tmdb() -> pd.DataFrame:
     try:
         url = "https://api.themoviedb.org/3/discover/movie"
         all_results = []
-        # Fetch 3 pages for a decent starting catalog
-        for page in range(1, 4):
+        # Fetch 10 pages for a larger catalog (~200 movies)
+        for page in range(1, 11):
             resp = requests.get(
                 url, 
                 params={"api_key": TMDB_API_KEY, "page": page, "sort_by": "popularity.desc"}, 
