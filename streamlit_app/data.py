@@ -19,7 +19,8 @@ def fetch_movies() -> pd.DataFrame:
             data = response.json()
             if isinstance(data, dict) and "movie_details" in data:
                 data = data["movie_details"]
-            return pd.DataFrame(data)
+            df = pd.DataFrame(data)
+            return df.drop_duplicates(subset=["movieId"]) if not df.empty else df
             
         except ValueError:
             # Fallback: If API returns HTML (loop/IAP), try direct TMDB fetch
@@ -81,7 +82,8 @@ def _fetch_movies_direct_tmdb() -> pd.DataFrame:
                 "genres": "|".join(genre_names),
                 "language": m.get("original_language", "xx")
             })
-        return pd.DataFrame(movies)
+        df = pd.DataFrame(movies)
+        return df.drop_duplicates(subset=["movieId"]) if not df.empty else df
     except Exception as e:
         st.error(f"❌ Fallback fetch failed: {e}")
         return pd.DataFrame()

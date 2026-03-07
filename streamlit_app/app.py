@@ -122,14 +122,17 @@ def main() -> None:
     else:
         start_idx = (current_page - 1) * MOVIES_PER_PAGE
         end_idx = min(start_idx + MOVIES_PER_PAGE, total_movies)
-        page_movies = filtered.iloc[start_idx:end_idx]
+        # Final safety deduplication to prevent key collisions
+        page_movies = page_movies.drop_duplicates(subset=["movieId"])
 
         cols = st.columns(3)
         for idx, (_, movie) in enumerate(page_movies.iterrows()):
             with cols[idx % 3]:
                 st.markdown(render_movie_card_html(movie), unsafe_allow_html=True)
-                if st.button(" ", key=f"card_{movie['movieId']}", use_container_width=True):
-                    st.session_state.selected_movie = movie["movieId"]
+                # Use a combined key of ID and index for absolute uniqueness
+                m_id = movie["movieId"]
+                if st.button(" ", key=f"card_{m_id}_{idx}", use_container_width=True):
+                    st.session_state.selected_movie = m_id
                     st.rerun()
 
         st.markdown('<div class="custom-divider"></div>', unsafe_allow_html=True)
