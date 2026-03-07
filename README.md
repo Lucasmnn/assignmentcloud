@@ -5,3 +5,5 @@ https://fonctionsassignment1-923500071692.europe-west6.run.app
 #if you click on the title of the movie it will show you the details of the movie
 
 #if you click on the movie card it will show you the details of the movie
+
+#scroll down on the left bar to see all the filters 
