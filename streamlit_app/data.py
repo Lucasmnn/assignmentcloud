@@ -10,33 +10,60 @@ from config import API_URL, TMDB_API_KEY, CACHE_TTL_MOVIES, CACHE_TTL_TMDB
 
 @st.cache_data(ttl=CACHE_TTL_MOVIES, show_spinner=False)
 def fetch_movies() -> pd.DataFrame:
-    """Fetch the full movie catalog from the backend Cloud Function.
-
-    Returns:
-        A DataFrame with columns such as ``movieId``, ``title``,
-        ``release_year``, ``avg_rating``, ``genres``, ``language``.
-        Returns an empty DataFrame on failure.
-    """
+    """Fetch the full movie catalog from the backend Cloud Function or TMDB fallback."""
     try:
         response = requests.get(API_URL, timeout=15)
         response.raise_for_status()
         
         try:
             data = response.json()
-        except ValueError as json_err:
-            content_snippet = response.text[:200].replace("\n", " ")
-            st.error(f"❌ API returned non-JSON data (Content-Type: {response.headers.get('Content-Type')})")
-            st.info(f"Snippet: {content_snippet}...")
-            return pd.DataFrame()
-
-        if isinstance(data, dict) and "movie_details" in data:
-            data = data["movie_details"]
-
-        df = pd.DataFrame(data)
-        return df
+            if isinstance(data, dict) and "movie_details" in data:
+                data = data["movie_details"]
+            return pd.DataFrame(data)
+            
+        except ValueError:
+            # Fallback: If API returns HTML (loop/IAP), try direct TMDB fetch
+            if TMDB_API_KEY:
+                st.warning("⚠️ API_URL returned HTML. Falling back to direct TMDB fetch.")
+                return _fetch_movies_direct_tmdb()
+            else:
+                st.error("❌ API returned non-JSON data and no TMDB_API_KEY for fallback.")
+                return pd.DataFrame()
 
     except requests.RequestException as e:
+        if TMDB_API_KEY:
+            st.warning(f"⚠️ API unreachable ({e}). Falling back to direct TMDB fetch.")
+            return _fetch_movies_direct_tmdb()
         st.error(f"❌ Error fetching data from API: {e}")
+        return pd.DataFrame()
+
+
+def _fetch_movies_direct_tmdb() -> pd.DataFrame:
+    """Fallback logic to populate the catalog directly from TMDB discover."""
+    try:
+        url = "https://api.themoviedb.org/3/discover/movie"
+        all_results = []
+        # Fetch 3 pages for a decent starting catalog
+        for page in range(1, 4):
+            resp = requests.get(url, params={"api_key": TMDB_API_KEY, "page": page}, timeout=10)
+            resp.raise_for_status()
+            results = resp.json().get("results", [])
+            all_results.extend(results)
+        
+        # Transform TMDB results to match the app's expected schema
+        movies = []
+        for m in all_results:
+            movies.append({
+                "movieId": m["id"],
+                "title": m["title"],
+                "release_year": int(m["release_date"][:4]) if m.get("release_date") else 0,
+                "avg_rating": m.get("vote_average", 0.0),
+                "genres": "|".join([str(gid) for gid in m.get("genre_ids", [])]),
+                "language": m.get("original_language", "xx")
+            })
+        return pd.DataFrame(movies)
+    except Exception as e:
+        st.error(f"❌ Fallback fetch failed: {e}")
         return pd.DataFrame()
 
 
