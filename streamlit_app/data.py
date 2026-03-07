@@ -101,8 +101,8 @@ def _post_process_movies(df: pd.DataFrame) -> pd.DataFrame:
     df["avg_rating"] = pd.to_numeric(df.get("avg_rating", 0), errors="coerce").fillna(0.0)
     df["release_year"] = pd.to_numeric(df.get("release_year", 0), errors="coerce").fillna(0).astype(int)
     
-    # Filter out outliers (e.g. movies before 1900 as noted by user)
-    df = df[df["release_year"] >= 1900].copy()
+    # Filter out outliers (Keep movies from 1898 as requested)
+    df = df[df["release_year"] >= 1898].copy()
     
     # Normalize rating to 5-star scale
     if df["avg_rating"].max() > 5.1:
