@@ -27,7 +27,12 @@ def fetch_movies() -> pd.DataFrame:
                 st.warning("⚠️ API_URL returned HTML. Falling back to direct TMDB fetch.")
                 return _fetch_movies_direct_tmdb()
             else:
-                st.error("❌ API returned non-JSON data and no TMDB_API_KEY for fallback.")
+                st.error("❌ API_URL returned HTML (Self-loop) and `TMDB_API_KEY` is missing.")
+                st.info(
+                    "💡 **How to fix:** Go to your **GCP Cloud Run console** → Edit & Deploy → "
+                    "Variables → Add a variable `TMDB_API_KEY` with your key. "
+                    "This is needed because `.env` files are not included in the Docker image for security."
+                )
                 return pd.DataFrame()
 
     except requests.RequestException as e:
