@@ -40,12 +40,25 @@ def fetch_movies() -> pd.DataFrame:
 
 def _fetch_movies_direct_tmdb() -> pd.DataFrame:
     """Fallback logic to populate the catalog directly from TMDB discover."""
+    # TMDB Genre ID to Name mapping
+    GENRE_MAP = {
+        28: "Action", 12: "Adventure", 16: "Animation", 35: "Comedy",
+        80: "Crime", 99: "Documentary", 18: "Drama", 10751: "Family",
+        14: "Fantasy", 36: "History", 27: "Horror", 10402: "Music",
+        9648: "Mystery", 10749: "Romance", 878: "Sci-Fi", 10770: "TV Movie",
+        53: "Thriller", 10752: "War", 37: "Western"
+    }
+
     try:
         url = "https://api.themoviedb.org/3/discover/movie"
         all_results = []
         # Fetch 3 pages for a decent starting catalog
         for page in range(1, 4):
-            resp = requests.get(url, params={"api_key": TMDB_API_KEY, "page": page}, timeout=10)
+            resp = requests.get(
+                url, 
+                params={"api_key": TMDB_API_KEY, "page": page, "sort_by": "popularity.desc"}, 
+                timeout=10
+            )
             resp.raise_for_status()
             results = resp.json().get("results", [])
             all_results.extend(results)
@@ -53,12 +66,19 @@ def _fetch_movies_direct_tmdb() -> pd.DataFrame:
         # Transform TMDB results to match the app's expected schema
         movies = []
         for m in all_results:
+            # TMDB uses 0-10 scale, app uses 0-5
+            normalized_rating = m.get("vote_average", 0.0) / 2.0
+            
+            # Map genre IDs to names
+            genre_ids = m.get("genre_ids", [])
+            genre_names = [GENRE_MAP.get(gid, str(gid)) for gid in genre_ids]
+            
             movies.append({
                 "movieId": m["id"],
                 "title": m["title"],
                 "release_year": int(m["release_date"][:4]) if m.get("release_date") else 0,
-                "avg_rating": m.get("vote_average", 0.0),
-                "genres": "|".join([str(gid) for gid in m.get("genre_ids", [])]),
+                "avg_rating": normalized_rating,
+                "genres": "|".join(genre_names),
                 "language": m.get("original_language", "xx")
             })
         return pd.DataFrame(movies)
