@@ -41,18 +41,8 @@ class FilterState:
 
 
 
-def render_sidebar_filters(df: pd.DataFrame) -> tuple[dict, list[str]]:
-    """Render filter widgets inside the Streamlit sidebar (compact layout).
-
-    This function no longer renders the Title search bar. It returns
-    the list of all titles so the main page can render it.
-
-    Args:
-        df: The full (unfiltered) movie DataFrame.
-
-    Returns:
-        A tuple of (sidebar_values_dict, all_titles).
-    """
+def render_sidebar_filters(df: pd.DataFrame) -> dict:
+    """Render filter widgets inside the Streamlit sidebar (compact layout)."""
     all_genres = sorted(set(
         g.strip()
         for genres_str in df["genres"].dropna()
@@ -60,14 +50,31 @@ def render_sidebar_filters(df: pd.DataFrame) -> tuple[dict, list[str]]:
         if g.strip() and g.strip() != "(no genres listed)"
     ))
     all_languages = sorted(df["language"].dropna().unique())
-    min_year = int(df["release_year"].min())
-    max_year = int(df["release_year"].max())
+    all_titles = sorted(df["title"].dropna().unique().tolist())
+    
+    # Handle potentially missing or float release years
+    valid_years = df["release_year"].dropna().astype(int)
+    min_year = int(valid_years.min()) if not valid_years.empty else 1900
+    max_year = int(valid_years.max()) if not valid_years.empty else 2024
+    
     min_rating = float(df["avg_rating"].min())
     max_rating = float(df["avg_rating"].max())
-    all_titles = sorted(df["title"].dropna().unique().tolist())
 
     with st.sidebar:
-        st.markdown("## 🎬 Filters")
+        st.markdown("## 🎬 Movie Catalog")
+        st.markdown('<div class="custom-divider"></div>', unsafe_allow_html=True)
+
+        # Title search with autocomplete
+        st.markdown("#### 🔍 Search by Title")
+        search_title = st.selectbox(
+            "Type to search...",
+            options=[""] + all_titles,
+            index=0,
+            placeholder="Start typing a movie title...",
+            label_visibility="collapsed",
+            key="filter_title",
+        )
+
         st.markdown('<div class="custom-divider"></div>', unsafe_allow_html=True)
 
         # Genre filter
@@ -140,7 +147,8 @@ def render_sidebar_filters(df: pd.DataFrame) -> tuple[dict, list[str]]:
             key="clear_filters"
         )
 
-    sidebar_vals = {
+    return {
+        "search_title": search_title,
         "selected_genres": selected_genres,
         "selected_languages": selected_languages,
         "rating_range": rating_range,
@@ -151,27 +159,6 @@ def render_sidebar_filters(df: pd.DataFrame) -> tuple[dict, list[str]]:
         "min_year": min_year,
         "max_year": max_year,
     }
-
-    return sidebar_vals, all_titles
-
-
-def render_search_bar(all_titles: list[str]) -> str:
-    """Render the title search bar on the main page.
-
-    Args:
-        all_titles: Sorted list of all movie titles.
-
-    Returns:
-        The currently selected title string (empty if none).
-    """
-    return st.selectbox(
-        "🔍 Search by Title",
-        options=[""] + all_titles,
-        index=0,
-        placeholder="Start typing a movie title...",
-        label_visibility="collapsed",
-        key="filter_title",
-    )
 
 
 def apply_filters(df: pd.DataFrame, fs: FilterState) -> pd.DataFrame:

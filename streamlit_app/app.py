@@ -48,6 +48,12 @@ def main() -> None:
         '<div class="section-title">🎬 Movie Catalog</div>',
         unsafe_allow_html=True,
     )
+    st.markdown(
+        '<div class="section-subtitle">'
+        "Explore, filter, and discover movies from the TMDB dataset"
+        "</div>",
+        unsafe_allow_html=True,
+    )
 
     all_genres = sorted(set(
         g.strip()
@@ -56,25 +62,15 @@ def main() -> None:
         if g.strip() and g.strip() != "(no genres listed)"
     ))
 
-    from filters import render_sidebar_filters, render_search_bar, FilterState
-    sidebar_vals, all_titles = render_sidebar_filters(df)
-
-    search_title = st.session_state.get("filter_title", "")
-
-    fs = FilterState(search_title=search_title, **sidebar_vals)
+    # Filters are handled entirely in the sidebar
+    from filters import render_sidebar_filters, FilterState
+    sidebar_vals = render_sidebar_filters(df)
+    
+    fs = FilterState(**sidebar_vals)
     filtered = apply_filters(df, fs)
 
     render_metrics(df, filtered, all_genres)
     
-    st.markdown('<div class="custom-divider"></div>', unsafe_allow_html=True)
-    
-    st.markdown("#### 🔍 Search by Title")
-    new_search_title = render_search_bar(all_titles)
-    
-    if new_search_title != search_title:
-        st.session_state.filter_title = new_search_title
-        st.rerun()
-
     st.markdown('<div class="custom-divider"></div>', unsafe_allow_html=True)
     
     render_active_filters(

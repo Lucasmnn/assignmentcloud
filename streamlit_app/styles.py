@@ -211,14 +211,16 @@ div[data-testid="stMetric"] [data-testid="stMetricValue"] {
 
 /* ── Section title ── */
 .section-title {
-    font-size: 2.4em;
-    font-weight: 800;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: 6px;
-    letter-spacing: -0.03em;
+    font-size: 1.5em;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 4px;
+    letter-spacing: -0.02em;
+}
+.section-subtitle {
+    font-size: 0.95em;
+    color: #8b8ba7;
+    margin-bottom: 24px;
 }
 
 /* ── No results ── */

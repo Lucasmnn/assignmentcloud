@@ -8,9 +8,9 @@ import streamlit as st
 from config import API_URL, TMDB_API_KEY, CACHE_TTL_MOVIES, CACHE_TTL_TMDB
 
 
-@st.cache_data(ttl=CACHE_TTL_MOVIES, show_spinner=False)
+@st.cache_data(ttl=300, show_spinner=False)
 def fetch_movies() -> pd.DataFrame:
-    """Fetch movie data from the BigQuery-backed API with 5-minute cache."""
+    """Fetch movie data from the Cloud Function API with 5-minute cache."""
     try:
         response = requests.get(API_URL, timeout=15)
         response.raise_for_status()
@@ -18,21 +18,8 @@ def fetch_movies() -> pd.DataFrame:
         if isinstance(data, dict) and "movie_details" in data:
             data = data["movie_details"]
         df = pd.DataFrame(data)
-        
-        # Basic cleanup: handle missing ratings/years
-        if not df.empty:
-            df["avg_rating"] = df["avg_rating"].fillna(0.0)
-            df["release_year"] = df["release_year"].fillna(0).astype(int)
-            # Normalization safety: if backend uses 0-10, scale to 0-5
-            if df["avg_rating"].max() > 5.1:
-                df["avg_rating"] = df["avg_rating"] / 2.0
-            
-            return df.drop_duplicates(subset=["movieId"])
         return df
     except requests.RequestException as e:
-        # Fallback to TMDB directly if API is down
-        if TMDB_API_KEY:
-            return _fetch_movies_direct_tmdb()
         st.error(f"❌ Error fetching data from API: {e}")
         return pd.DataFrame()
 
