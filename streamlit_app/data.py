@@ -10,7 +10,13 @@ from config import API_URL, TMDB_API_KEY, CACHE_TTL_MOVIES, CACHE_TTL_TMDB
 
 @st.cache_data(ttl=CACHE_TTL_MOVIES, show_spinner=False)
 def fetch_movies() -> pd.DataFrame:
-    """Fetch the full movie catalog from the backend Cloud Function or TMDB fallback."""
+    """Fetch the full movie catalog from local CSV, API, or TMDB fallback."""
+    # 1. Try local CSV (Priority as requested)
+    local_df = _load_local_csv()
+    if local_df is not None:
+        return local_df
+
+    # 2. Try configured API
     try:
         response = requests.get(API_URL, timeout=15)
         response.raise_for_status()
@@ -23,20 +29,63 @@ def fetch_movies() -> pd.DataFrame:
             return df.drop_duplicates(subset=["movieId"]) if not df.empty else df
             
         except ValueError:
-            # Fallback: If API returns HTML (loop/IAP), try direct TMDB fetch
+            # 3. Fallback to TMDB directly
             if TMDB_API_KEY:
-                # Silenced warning as requested by user for cleaner UI
+                # Silenced warning for cleaner UI
                 return _fetch_movies_direct_tmdb()
             else:
-                st.error("❌ API_URL returned HTML (Self-loop) and `TMDB_API_KEY` is missing from environment or .env.")
+                st.error("❌ No local CSV, API loop detected, and `TMDB_API_KEY` is missing.")
                 return pd.DataFrame()
 
-    except requests.RequestException as e:
+    except requests.RequestException:
         if TMDB_API_KEY:
-            st.warning(f"⚠️ API unreachable ({e}). Falling back to direct TMDB fetch.")
             return _fetch_movies_direct_tmdb()
-        st.error(f"❌ Error fetching data from API: {e}")
+        st.error("❌ Error: No local CSV found and API is unreachable.")
         return pd.DataFrame()
+
+
+def _load_local_csv() -> Optional[pd.DataFrame]:
+    """Load and merge local MovieLens-style CSV files."""
+    import os
+    from pathlib import Path
+
+    # Root directory (one level up from streamlit_app/)
+    base_dir = Path(__file__).resolve().parent.parent
+    movies_path = base_dir / "ML-20M-movies.csv"
+    ratings_path = base_dir / "ml-20M-ratings.csv"
+
+    if not movies_path.exists():
+        return None
+
+    try:
+        # Load movies
+        movies_df = pd.read_csv(movies_path)
+        
+        # Try to load ratings if available to get avg_rating
+        if ratings_path.exists():
+            # Optimization: only read required columns
+            ratings_df = pd.read_csv(ratings_path, usecols=["movieId", "rating"])
+            avg_ratings = ratings_df.groupby("movieId")["rating"].mean().reset_index()
+            # If avg_rating already in movies_df, rename it or merge
+            if "avg_rating" in movies_df.columns:
+                movies_df = movies_df.drop(columns=["avg_rating"])
+            movies_df = pd.merge(movies_df, avg_ratings, on="movieId", how="left").rename(columns={"rating": "avg_rating"})
+        
+        # Ensure schema compliance
+        required_cols = ["movieId", "title", "release_year", "avg_rating", "genres", "language"]
+        for col in required_cols:
+            if col not in movies_df.columns:
+                if col == "avg_rating": movies_df[col] = 0.0
+                elif col == "genres": movies_df[col] = "Unknown"
+                elif col == "language": movies_df[col] = "xx"
+                elif col == "release_year": movies_df[col] = 0
+        
+        movies_df["avg_rating"] = movies_df["avg_rating"].fillna(0.0)
+        
+        return movies_df[required_cols]
+    except Exception as e:
+        st.error(f"⚠️ Error loading local CSV: {e}")
+        return None
 
 
 def _fetch_movies_direct_tmdb() -> pd.DataFrame:

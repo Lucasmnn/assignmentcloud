@@ -15,7 +15,7 @@ def reset_filters() -> None:
     st.session_state.filter_title = ""
     st.session_state.filter_genres = []
     st.session_state.filter_languages = []
-    st.session_state.filter_sort = "Rating (High → Low)"
+    st.session_state.filter_sort = "Year (Newest)"
     
     # Sliders and specific states can be deleted to revert to widget defaults
     for k in ["filter_rating", "filter_year", "selected_movie"]:

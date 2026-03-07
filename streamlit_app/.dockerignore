@@ -22,3 +22,7 @@ env/
 # Git
 .git/
 .gitignore
+
+# Data
+*.csv
+
