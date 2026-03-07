@@ -50,21 +50,31 @@ def fetch_movies() -> pd.DataFrame:
 
 
 def _fetch_movies_direct_bigquery() -> pd.DataFrame:
-    """Connect directly to BigQuery from the app."""
+    """Connect directly to BigQuery from the app and join Movie/Rating tables."""
     try:
-        # Use simple client initialization (works on Local & Cloud Run)
-        client = bigquery.Client(project=BQ_PROJECT_ID if BQ_PROJECT_ID != "your-project-id" else None)
+        # User confirmed project assignment-1-489109 and dataset assignment1
+        client = bigquery.Client(project=BQ_PROJECT_ID)
+        
+        # We join metadata with ratings to calculate the avg_rating for the catalog
         query = f"""
-            SELECT movieId, title, genres, release_year, language,
-                   CAST(avg_rating AS FLOAT64) as avg_rating
-            FROM `{BQ_PROJECT_ID}.{BQ_TABLE_ID}`
+            SELECT 
+                m.movieId, 
+                m.title, 
+                m.genres,
+                SAFE_CAST(REGEXP_EXTRACT(m.title, r'\\((\\d{{4}})\\)') AS INT64) as release_year,
+                AVG(CAST(r.rating AS FLOAT64)) as avg_rating,
+                'en' as language
+            FROM `{BQ_PROJECT_ID}.assignment1.Movie` as m
+            LEFT JOIN `{BQ_PROJECT_ID}.assignment1.Rating` as r ON m.movieId = r.movieId
+            GROUP BY 1, 2, 3
             ORDER BY release_year DESC
         """
         query_job = client.query(query)
         df = query_job.to_dataframe()
         return _post_process_movies(df)
     except Exception as e:
-        # If both API and BQ fail, we'll hit the TMDB fallback in the main loop
+        # Logging error to Streamlit for easier debugging on user's end
+        st.error(f"❌ BigQuery Direct Fetch Failed: {e}")
         return pd.DataFrame()
 
 

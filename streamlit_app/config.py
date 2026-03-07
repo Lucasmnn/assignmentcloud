@@ -16,8 +16,8 @@ API_URL: str = os.environ.get(
 )
 
 # BigQuery Direct Connection Config (Alternative to API)
-BQ_PROJECT_ID: str = os.environ.get("BQ_PROJECT_ID", "your-project-id")
-BQ_TABLE_ID: str = os.environ.get("BQ_TABLE_ID", "your_dataset.merged_movies_20m")
+BQ_PROJECT_ID: str = os.environ.get("BQ_PROJECT_ID", "assignment-1-489109")
+BQ_TABLE_ID: str = os.environ.get("BQ_TABLE_ID", "assignment1.Movie")
 
 
 MOVIES_PER_PAGE: int = 24
