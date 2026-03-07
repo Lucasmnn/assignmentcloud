@@ -10,13 +10,7 @@ from config import API_URL, TMDB_API_KEY, CACHE_TTL_MOVIES, CACHE_TTL_TMDB
 
 @st.cache_data(ttl=CACHE_TTL_MOVIES, show_spinner=False)
 def fetch_movies() -> pd.DataFrame:
-    """Fetch the full movie catalog from local CSV, API, or TMDB fallback."""
-    # 1. Try local CSV (Priority as requested)
-    local_df = _load_local_csv()
-    if local_df is not None:
-        return local_df
-
-    # 2. Try configured API
+    """Fetch the full movie catalog from the BigQuery-backed API or TMDB fallback."""
     try:
         response = requests.get(API_URL, timeout=15)
         response.raise_for_status()
@@ -26,66 +20,71 @@ def fetch_movies() -> pd.DataFrame:
             if isinstance(data, dict) and "movie_details" in data:
                 data = data["movie_details"]
             df = pd.DataFrame(data)
-            return df.drop_duplicates(subset=["movieId"]) if not df.empty else df
+            
+            if not df.empty:
+                # Format for frontend (Rating 0-10 -> 0-5, Genre ID -> Names)
+                return _format_catalog_data(df)
+            return df
             
         except ValueError:
-            # 3. Fallback to TMDB directly
+            # Fallback to TMDB directly
             if TMDB_API_KEY:
                 # Silenced warning for cleaner UI
                 return _fetch_movies_direct_tmdb()
             else:
-                st.error("❌ No local CSV, API loop detected, and `TMDB_API_KEY` is missing.")
+                st.error("❌ API loop detected and `TMDB_API_KEY` is missing.")
                 return pd.DataFrame()
 
     except requests.RequestException:
         if TMDB_API_KEY:
             return _fetch_movies_direct_tmdb()
-        st.error("❌ Error: No local CSV found and API is unreachable.")
+        st.error("❌ Error: API is unreachable and no TMDB fallback available.")
         return pd.DataFrame()
 
 
-def _load_local_csv() -> Optional[pd.DataFrame]:
-    """Load and merge local MovieLens-style CSV files."""
-    import os
-    from pathlib import Path
+def _format_catalog_data(df: pd.DataFrame) -> pd.DataFrame:
+    """Normalize ratings and map genre IDs to names for consistent display."""
+    # TMDB Genre ID to Name mapping (standard TMDB IDs)
+    GENRE_MAP = {
+        28: "Action", 12: "Adventure", 16: "Animation", 35: "Comedy",
+        80: "Crime", 99: "Documentary", 18: "Drama", 10751: "Family",
+        14: "Fantasy", 36: "History", 27: "Horror", 10402: "Music",
+        9648: "Mystery", 10749: "Romance", 878: "Sci-Fi", 10770: "TV Movie",
+        53: "Thriller", 10752: "War", 37: "Western",
+        # ML-20M custom genres (common mappings)
+        "Action": "Action", "Adventure": "Adventure", "Animation": "Animation",
+        "Children": "Children", "Comedy": "Comedy", "Crime": "Crime",
+        "Documentary": "Documentary", "Drama": "Drama", "Fantasy": "Fantasy",
+        "Film-Noir": "Film-Noir", "Horror": "Horror", "Musical": "Musical",
+        "Mystery": "Mystery", "Romance": "Romance", "Sci-Fi": "Sci-Fi",
+        "Thriller": "Thriller", "War": "War", "Western": "Western"
+    }
 
-    # Root directory (one level up from streamlit_app/)
-    base_dir = Path(__file__).resolve().parent.parent
-    movies_path = base_dir / "ML-20M-movies.csv"
-    ratings_path = base_dir / "ml-20M-ratings.csv"
+    def _map_genres(g_str):
+        if not g_str or pd.isna(g_str): return "Unknown"
+        # Handle both list of IDs (from TMDB) and pipe-separated names (from BigQuery)
+        parts = str(g_str).split("|")
+        mapped = []
+        for p in parts:
+            try:
+                # If numeric string, map ID
+                gid = int(p)
+                mapped.append(GENRE_MAP.get(gid, p))
+            except ValueError:
+                # If name string, use as is (or map for consistency)
+                mapped.append(GENRE_MAP.get(p, p))
+        return "|".join(dict.fromkeys(mapped)) # Deduplicate
 
-    if not movies_path.exists():
-        return None
+    # Ratings: Normalize to 5-star scale if values look like 0-10 or 0-20
+    if not df.empty and df["avg_rating"].max() > 5.1:
+        # If max is > 10, it might be 0-100 or something else, but 0-10 is most common
+        scale_factor = 20.0 if df["avg_rating"].max() > 10.1 else 2.0
+        df["avg_rating"] = df["avg_rating"] / scale_factor
 
-    try:
-        # Load movies
-        movies_df = pd.read_csv(movies_path)
-        
-        # Try to load ratings if available to get avg_rating
-        if ratings_path.exists():
-            # Optimization: only read required columns
-            ratings_df = pd.read_csv(ratings_path, usecols=["movieId", "rating"])
-            avg_ratings = ratings_df.groupby("movieId")["rating"].mean().reset_index()
-            # If avg_rating already in movies_df, rename it or merge
-            if "avg_rating" in movies_df.columns:
-                movies_df = movies_df.drop(columns=["avg_rating"])
-            movies_df = pd.merge(movies_df, avg_ratings, on="movieId", how="left").rename(columns={"rating": "avg_rating"})
-        
-        # Ensure schema compliance
-        required_cols = ["movieId", "title", "release_year", "avg_rating", "genres", "language"]
-        for col in required_cols:
-            if col not in movies_df.columns:
-                if col == "avg_rating": movies_df[col] = 0.0
-                elif col == "genres": movies_df[col] = "Unknown"
-                elif col == "language": movies_df[col] = "xx"
-                elif col == "release_year": movies_df[col] = 0
-        
-        movies_df["avg_rating"] = movies_df["avg_rating"].fillna(0.0)
-        
-        return movies_df[required_cols]
-    except Exception as e:
-        st.error(f"⚠️ Error loading local CSV: {e}")
-        return None
+    df["genres"] = df["genres"].apply(_map_genres)
+    
+    # Final safety deduplication
+    return df.drop_duplicates(subset=["movieId"])
 
 
 def _fetch_movies_direct_tmdb() -> pd.DataFrame:
