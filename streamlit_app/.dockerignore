@@ -13,7 +13,6 @@ venv/
 env/
 
 # Environment secrets
-.env
 
 # IDE
 .idea/
