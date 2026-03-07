@@ -10,7 +10,7 @@ from utils import get_genre_class, get_language_label, render_stars
 
 
 def render_movie_card_html(movie: pd.Series) -> str:
-   
+
     genres = str(movie.get("genres", "")).split("|")
     genres = [g.strip() for g in genres if g.strip() and g != "(no genres listed)"]
 
@@ -41,7 +41,7 @@ def render_movie_card_html(movie: pd.Series) -> str:
 
 
 def show_detail_view(movie_row: pd.Series, df: pd.DataFrame) -> None:
- 
+
     if st.button("← Back to Catalog", use_container_width=False):
         st.session_state.pop("selected_movie", None)
         st.rerun()
@@ -76,14 +76,14 @@ def _render_poster_placeholder() -> None:
     st.markdown(
         """
         <div style="
-            background: linear-gradient(145deg, #1e1e2f, #2a2a40);
+            background: linear-gradient(145deg,
             border-radius: 16px;
             height: 450px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 4em;
-            color: #3a3a5c;
+            color:
         ">🎬</div>
         """,
         unsafe_allow_html=True,
@@ -156,7 +156,6 @@ def _render_detail_info(
             unsafe_allow_html=True,
         )
 
-    # Production companies
     if tmdb and tmdb.get("production_companies"):
         companies = ", ".join(c["name"] for c in tmdb["production_companies"][:5])
         st.markdown(

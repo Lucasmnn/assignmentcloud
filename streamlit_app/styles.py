@@ -16,7 +16,6 @@ html, body, [class*="css"] {
 }
 
 /* ── Hide Streamlit branding & sidebar close button ── */
-#MainMenu {visibility: hidden;}
 footer {visibility: hidden;}
 header {visibility: hidden;}
 
@@ -31,13 +30,13 @@ button[kind="headerNoPadding"] {
 
 /* ── Sidebar styling ── */
 [data-testid="stSidebar"] {
-    background: linear-gradient(180deg, #0f0f23 0%, #1a1a3e 100%);
+    background: linear-gradient(180deg,
 }
 [data-testid="stSidebar"] * {
-    color: #e0e0e0 !important;
+    color:
 }
 [data-testid="stSidebar"] .stMarkdown h2 {
-    color: #ffffff !important;
+    color:
     font-weight: 700;
     letter-spacing: -0.02em;
     margin-bottom: 20px !important;
@@ -51,7 +50,7 @@ button[kind="headerNoPadding"] {
 /* Clear-all filters button */
 .clear-filters-btn button {
     background: rgba(239, 83, 80, 0.12) !important;
-    color: #ef5350 !important;
+    color:
     border: 1px solid rgba(239, 83, 80, 0.3) !important;
     border-radius: 12px !important;
     font-weight: 600 !important;
@@ -59,12 +58,12 @@ button[kind="headerNoPadding"] {
 }
 .clear-filters-btn button:hover {
     background: rgba(239, 83, 80, 0.25) !important;
-    border-color: #ef5350 !important;
+    border-color:
 }
 
 /* ── Metric cards ── */
 div[data-testid="stMetric"] {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(135deg,
     padding: 18px 22px;
     border-radius: 16px;
     color: white !important;
@@ -80,13 +79,13 @@ div[data-testid="stMetric"] label {
     font-weight: 500;
 }
 div[data-testid="stMetric"] [data-testid="stMetricValue"] {
-    color: #ffffff !important;
+    color:
     font-weight: 700;
 }
 
 /* ── Movie Card ── */
 .movie-card {
-    background: linear-gradient(145deg, #1e1e2f, #2a2a40);
+    background: linear-gradient(145deg,
     border: 1px solid rgba(255,255,255,0.06);
     border-radius: 16px;
     padding: 24px;
@@ -102,7 +101,7 @@ div[data-testid="stMetric"] [data-testid="stMetricValue"] {
     position: absolute;
     top: 0; left: 0; right: 0;
     height: 3px;
-    background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
+    background: linear-gradient(90deg,
     opacity: 0;
     transition: opacity 0.3s ease;
 }
@@ -118,7 +117,7 @@ div[data-testid="stMetric"] [data-testid="stMetricValue"] {
 .movie-title {
     font-size: 1.15em;
     font-weight: 700;
-    color: #ffffff;
+    color:
     margin-bottom: 10px;
     line-height: 1.3;
     letter-spacing: -0.01em;
@@ -126,7 +125,7 @@ div[data-testid="stMetric"] [data-testid="stMetricValue"] {
 
 .movie-year {
     font-size: 0.82em;
-    color: #8b8ba7;
+    color:
     font-weight: 500;
     margin-bottom: 12px;
 }
@@ -148,7 +147,7 @@ div[data-testid="stMetric"] [data-testid="stMetricValue"] {
     border-radius: 20px;
     font-size: 0.88em;
     font-weight: 600;
-    color: #ffc107;
+    color:
 }
 
 .movie-lang {
@@ -160,7 +159,7 @@ div[data-testid="stMetric"] [data-testid="stMetricValue"] {
     border-radius: 20px;
     font-size: 0.82em;
     font-weight: 500;
-    color: #667eea;
+    color:
     text-transform: uppercase;
     letter-spacing: 0.05em;
 }
@@ -182,29 +181,29 @@ div[data-testid="stMetric"] [data-testid="stMetricValue"] {
 }
 
 /* Genre color palette */
-.genre-drama { background: rgba(239, 83, 80, 0.15); color: #ef5350; }
-.genre-comedy { background: rgba(255, 202, 40, 0.15); color: #ffca28; }
-.genre-action { background: rgba(255, 112, 67, 0.15); color: #ff7043; }
-.genre-romance { background: rgba(236, 64, 122, 0.15); color: #ec407a; }
-.genre-thriller { background: rgba(171, 71, 188, 0.15); color: #ab47bc; }
-.genre-horror { background: rgba(183, 28, 28, 0.15); color: #c62828; }
-.genre-sci-fi { background: rgba(0, 188, 212, 0.15); color: #00bcd4; }
-.genre-adventure { background: rgba(76, 175, 80, 0.15); color: #4caf50; }
-.genre-animation { background: rgba(255, 167, 38, 0.15); color: #ffa726; }
-.genre-musical { background: rgba(156, 39, 176, 0.15); color: #ce93d8; }
-.genre-war { background: rgba(121, 85, 72, 0.15); color: #a1887f; }
-.genre-crime { background: rgba(158, 158, 158, 0.15); color: #bdbdbd; }
-.genre-mystery { background: rgba(63, 81, 181, 0.15); color: #7986cb; }
-.genre-documentary { background: rgba(0, 150, 136, 0.15); color: #4db6ac; }
-.genre-western { background: rgba(188, 143, 89, 0.15); color: #bc8f59; }
-.genre-fantasy { background: rgba(126, 87, 194, 0.15); color: #7e57c2; }
-.genre-children { background: rgba(129, 199, 132, 0.15); color: #81c784; }
-.genre-film-noir { background: rgba(96, 96, 96, 0.18); color: #aaaaaa; }
-.genre-default { background: rgba(255, 255, 255, 0.08); color: #b0b0b0; }
+.genre-drama { background: rgba(239, 83, 80, 0.15); color:
+.genre-comedy { background: rgba(255, 202, 40, 0.15); color:
+.genre-action { background: rgba(255, 112, 67, 0.15); color:
+.genre-romance { background: rgba(236, 64, 122, 0.15); color:
+.genre-thriller { background: rgba(171, 71, 188, 0.15); color:
+.genre-horror { background: rgba(183, 28, 28, 0.15); color:
+.genre-sci-fi { background: rgba(0, 188, 212, 0.15); color:
+.genre-adventure { background: rgba(76, 175, 80, 0.15); color:
+.genre-animation { background: rgba(255, 167, 38, 0.15); color:
+.genre-musical { background: rgba(156, 39, 176, 0.15); color:
+.genre-war { background: rgba(121, 85, 72, 0.15); color:
+.genre-crime { background: rgba(158, 158, 158, 0.15); color:
+.genre-mystery { background: rgba(63, 81, 181, 0.15); color:
+.genre-documentary { background: rgba(0, 150, 136, 0.15); color:
+.genre-western { background: rgba(188, 143, 89, 0.15); color:
+.genre-fantasy { background: rgba(126, 87, 194, 0.15); color:
+.genre-children { background: rgba(129, 199, 132, 0.15); color:
+.genre-film-noir { background: rgba(96, 96, 96, 0.18); color:
+.genre-default { background: rgba(255, 255, 255, 0.08); color:
 
 /* ── Star display ── */
 .stars {
-    color: #ffc107;
+    color:
     font-size: 0.95em;
     letter-spacing: 1px;
 }
@@ -213,13 +212,13 @@ div[data-testid="stMetric"] [data-testid="stMetricValue"] {
 .section-title {
     font-size: 1.5em;
     font-weight: 700;
-    color: #ffffff;
+    color:
     margin-bottom: 4px;
     letter-spacing: -0.02em;
 }
 .section-subtitle {
     font-size: 0.95em;
-    color: #8b8ba7;
+    color:
     margin-bottom: 24px;
 }
 
@@ -227,7 +226,7 @@ div[data-testid="stMetric"] [data-testid="stMetricValue"] {
 .no-results {
     text-align: center;
     padding: 60px 20px;
-    color: #8b8ba7;
+    color:
 }
 .no-results-icon {
     font-size: 4em;
@@ -241,7 +240,7 @@ div[data-testid="stMetric"] [data-testid="stMetricValue"] {
 /* ── Pagination ── */
 .pagination-info {
     text-align: center;
-    color: #8b8ba7;
+    color:
     font-size: 0.9em;
     padding: 10px 0;
     margin-top: 10px;
@@ -259,19 +258,19 @@ div[data-testid="stMetric"] [data-testid="stMetricValue"] {
 .detail-header {
     font-size: 2em;
     font-weight: 700;
-    color: #ffffff;
+    color:
     margin-bottom: 8px;
     letter-spacing: -0.02em;
 }
 .detail-tagline {
     font-size: 1.1em;
-    color: #8b8ba7;
+    color:
     font-style: italic;
     margin-bottom: 20px;
 }
 .detail-overview {
     font-size: 1em;
-    color: #c0c0d0;
+    color:
     line-height: 1.7;
     margin-bottom: 20px;
 }
@@ -282,14 +281,14 @@ div[data-testid="stMetric"] [data-testid="stMetricValue"] {
     margin-bottom: 20px;
 }
 .detail-info-item {
-    background: #1e1e2f;
+    background:
     border: 1px solid rgba(255,255,255,0.06);
     border-radius: 12px;
     padding: 14px 18px;
 }
 .detail-info-label {
     font-size: 0.78em;
-    color: #8b8ba7;
+    color:
     text-transform: uppercase;
     letter-spacing: 0.06em;
     font-weight: 600;
@@ -297,7 +296,7 @@ div[data-testid="stMetric"] [data-testid="stMetricValue"] {
 }
 .detail-info-value {
     font-size: 1.05em;
-    color: #ffffff !important;
+    color:
     font-weight: 600;
 }
 
@@ -345,7 +344,7 @@ div[data-testid="stMetric"] [data-testid="stMetricValue"] {
     align-items: center;
     gap: 4px;
     background: rgba(102, 126, 234, 0.15);
-    color: #667eea;
+    color:
     padding: 4px 14px;
     border-radius: 20px;
     font-size: 0.82em;
@@ -355,7 +354,7 @@ div[data-testid="stMetric"] [data-testid="stMetricValue"] {
 /* ── Footer ── */
 .app-footer {
     text-align: center;
-    color: #6b6b8a;
+    color:
     font-size: 0.8em;
     padding: 20px 0 10px;
     border-top: 1px solid rgba(255,255,255,0.04);

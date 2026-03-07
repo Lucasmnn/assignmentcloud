@@ -14,15 +14,12 @@ from config import (
 @st.cache_data(ttl=300, show_spinner=False)
 def fetch_movies() -> pd.DataFrame:
     """Fetch movie data using the best available method: API -> Direct BQ -> TMDB."""
-    
-    # Strategy 1: Attempt to fetch from API
+
     try:
         response = requests.get(API_URL, timeout=5)
         content_type = response.headers.get("Content-Type", "").lower()
-        
-        # If API returns HTML, it's likely the Streamlit app itself (misconfigured)
+
         if "text/html" in content_type:
-            # Silently fallback to direct BQ if possible
             if BQ_PROJECT_ID != "your-project-id":
                 return _fetch_movies_direct_bigquery()
             return _fetch_movies_direct_tmdb() if TMDB_API_KEY else pd.DataFrame()
@@ -34,29 +31,26 @@ def fetch_movies() -> pd.DataFrame:
         df = pd.DataFrame(data)
         if not df.empty:
             return _post_process_movies(df)
-            
+
     except Exception:
-        # Strategy 2: Attempt direct BigQuery connection
         if BQ_PROJECT_ID != "your-project-id":
             df = _fetch_movies_direct_bigquery()
             if not df.empty:
                 return df
 
-    # Strategy 3: Fallback to TMDB
     if TMDB_API_KEY:
         return _fetch_movies_direct_tmdb()
-    
+
     return pd.DataFrame()
 
 
 def _fetch_movies_direct_bigquery() -> pd.DataFrame:
     """Connect directly to BigQuery and attempt to fetch actual languages."""
     client = bigquery.Client(project=BQ_PROJECT_ID)
-    
-    # Strategy A: Try to fetch with actual language column
+
     try:
         query_with_lang = f"""
-            SELECT 
+            SELECT
                 m.movieId, m.title, m.genres,
                 SAFE_CAST(REGEXP_EXTRACT(m.title, r'\\((\\d{{4}})\\)') AS INT64) as release_year,
                 AVG(CAST(r.rating AS FLOAT64)) as avg_rating,
@@ -69,12 +63,11 @@ def _fetch_movies_direct_bigquery() -> pd.DataFrame:
         query_job = client.query(query_with_lang)
         df = query_job.to_dataframe()
         return _post_process_movies(df)
-        
+
     except Exception:
-        # Strategy B: Fallback to hardcoded 'en' if 'language' column is missing in BQ
         try:
             query_no_lang = f"""
-                SELECT 
+                SELECT
                     m.movieId, m.title, m.genres,
                     SAFE_CAST(REGEXP_EXTRACT(m.title, r'\\((\\d{{4}})\\)') AS INT64) as release_year,
                     AVG(CAST(r.rating AS FLOAT64)) as avg_rating,
@@ -96,24 +89,20 @@ def _post_process_movies(df: pd.DataFrame) -> pd.DataFrame:
     """Standardize movie data regardless of source."""
     if df.empty:
         return df
-    
-    # Handle types and missing values
+
     df["avg_rating"] = pd.to_numeric(df.get("avg_rating", 0), errors="coerce").fillna(0.0)
     df["release_year"] = pd.to_numeric(df.get("release_year", 0), errors="coerce").fillna(0).astype(int)
-    
-    # Filter out outliers (Keep movies from 1898 as requested)
+
     df = df[df["release_year"] >= 1898].copy()
-    
-    # Normalize rating to 5-star scale
+
     if df["avg_rating"].max() > 5.1:
         df["avg_rating"] = df["avg_rating"] / 2.0
-    
+
     return df.drop_duplicates(subset=["movieId"])
 
 
 def _fetch_movies_direct_tmdb() -> pd.DataFrame:
     """Fallback logic to populate the catalog directly from TMDB discover."""
-    # TMDB Genre ID to Name mapping
     GENRE_MAP = {
         28: "Action", 12: "Adventure", 16: "Animation", 35: "Comedy",
         80: "Crime", 99: "Documentary", 18: "Drama", 10751: "Family",
@@ -125,27 +114,23 @@ def _fetch_movies_direct_tmdb() -> pd.DataFrame:
     try:
         url = "https://api.themoviedb.org/3/discover/movie"
         all_results = []
-        # Fetch 10 pages for a larger catalog (~200 movies)
         for page in range(1, 11):
             resp = requests.get(
-                url, 
-                params={"api_key": TMDB_API_KEY, "page": page, "sort_by": "popularity.desc"}, 
+                url,
+                params={"api_key": TMDB_API_KEY, "page": page, "sort_by": "popularity.desc"},
                 timeout=10
             )
             resp.raise_for_status()
             results = resp.json().get("results", [])
             all_results.extend(results)
-        
-        # Transform TMDB results to match the app's expected schema
+
         movies = []
         for m in all_results:
-            # TMDB uses 0-10 scale, app uses 0-5
             normalized_rating = m.get("vote_average", 0.0) / 2.0
-            
-            # Map genre IDs to names
+
             genre_ids = m.get("genre_ids", [])
             genre_names = [GENRE_MAP.get(gid, str(gid)) for gid in genre_ids]
-            
+
             movies.append({
                 "movieId": m["id"],
                 "title": m["title"],
@@ -187,7 +172,6 @@ def fetch_tmdb_details(title: str, year: int) -> Optional[dict]:
         results = resp.json().get("results", [])
 
         if not results:
-            # Retry without year constraint
             params.pop("year", None)
             resp = requests.get(search_url, params=params, timeout=10)
             resp.raise_for_status()

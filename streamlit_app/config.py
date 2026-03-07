@@ -15,14 +15,13 @@ API_URL: str = os.environ.get(
     "API_URL", "https://fonctionsassignment1-923500071692.europe-west6.run.app"
 )
 
-# BigQuery Direct Connection Config (Alternative to API)
 BQ_PROJECT_ID: str = os.environ.get("BQ_PROJECT_ID", "assignment-1-489109")
 BQ_TABLE_ID: str = os.environ.get("BQ_TABLE_ID", "assignment1.Movie")
 
 
 MOVIES_PER_PAGE: int = 24
-CACHE_TTL_MOVIES: int = 300       
-CACHE_TTL_TMDB: int = 3600        
+CACHE_TTL_MOVIES: int = 300
+CACHE_TTL_TMDB: int = 3600
 
 
 GENRE_CSS_MAP: dict[str, str] = {

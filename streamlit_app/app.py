@@ -62,17 +62,16 @@ def main() -> None:
         if g.strip() and g.strip() != "(no genres listed)"
     ))
 
-    # Filters are handled entirely in the sidebar
     from filters import render_sidebar_filters, FilterState
     sidebar_vals = render_sidebar_filters(df)
-    
+
     fs = FilterState(**sidebar_vals)
     filtered = apply_filters(df, fs)
 
     render_metrics(df, filtered, all_genres)
-    
+
     st.markdown('<div class="custom-divider"></div>', unsafe_allow_html=True)
-    
+
     render_active_filters(
         search_title=fs.search_title,
         selected_genres=fs.selected_genres,
@@ -119,14 +118,12 @@ def main() -> None:
         start_idx = (current_page - 1) * MOVIES_PER_PAGE
         end_idx = min(start_idx + MOVIES_PER_PAGE, total_movies)
         page_movies = filtered.iloc[start_idx:end_idx]
-        # Final safety deduplication to prevent key collisions
         page_movies = page_movies.drop_duplicates(subset=["movieId"])
 
         cols = st.columns(3)
         for idx, (_, movie) in enumerate(page_movies.iterrows()):
             with cols[idx % 3]:
                 st.markdown(render_movie_card_html(movie), unsafe_allow_html=True)
-                # Use a combined key of ID and index for absolute uniqueness
                 m_id = movie["movieId"]
                 if st.button(" ", key=f"card_{m_id}_{idx}", use_container_width=True):
                     st.session_state.selected_movie = m_id

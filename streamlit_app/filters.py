@@ -11,17 +11,15 @@ from utils import get_language_label
 
 def reset_filters() -> None:
     """Callback to clear all filter-related session state keys."""
-    # Explicitly set defaults for UI sync
     st.session_state.filter_title = ""
     st.session_state.filter_genres = []
     st.session_state.filter_languages = []
     st.session_state.filter_sort = "Year (Newest)"
-    
-    # Sliders and specific states can be deleted to revert to widget defaults
+
     for k in ["filter_rating", "filter_year", "selected_movie"]:
         if k in st.session_state:
             del st.session_state[k]
-            
+
     st.session_state.page = 1
 
 
@@ -51,12 +49,11 @@ def render_sidebar_filters(df: pd.DataFrame) -> dict:
     ))
     all_languages = sorted(df["language"].dropna().unique())
     all_titles = sorted(df["title"].dropna().unique().tolist())
-    
-    # Handle potentially missing or float release years
+
     valid_years = df["release_year"].dropna().astype(int)
     min_year = int(valid_years.min()) if not valid_years.empty else 1900
     max_year = int(valid_years.max()) if not valid_years.empty else 2024
-    
+
     min_rating = float(df["avg_rating"].min())
     max_rating = float(df["avg_rating"].max())
 
@@ -64,7 +61,6 @@ def render_sidebar_filters(df: pd.DataFrame) -> dict:
         st.markdown("## 🎬 Movie Catalog")
         st.markdown('<div class="custom-divider"></div>', unsafe_allow_html=True)
 
-        # Title search with autocomplete
         st.markdown("#### 🔍 Search by Title")
         search_title = st.selectbox(
             "Type to search...",
@@ -77,7 +73,6 @@ def render_sidebar_filters(df: pd.DataFrame) -> dict:
 
         st.markdown('<div class="custom-divider"></div>', unsafe_allow_html=True)
 
-        # Genre filter
         st.markdown("#### 🎭 Genre")
         selected_genres = st.multiselect(
             "Select genres",
@@ -89,7 +84,6 @@ def render_sidebar_filters(df: pd.DataFrame) -> dict:
 
         st.markdown('<div class="custom-divider"></div>', unsafe_allow_html=True)
 
-        # Language filter
         st.markdown("#### 🌐 Language")
         language_options = {get_language_label(code): code for code in all_languages}
         selected_lang_labels = st.multiselect(
@@ -103,7 +97,6 @@ def render_sidebar_filters(df: pd.DataFrame) -> dict:
 
         st.markdown('<div class="custom-divider"></div>', unsafe_allow_html=True)
 
-        # Rating filter
         st.markdown("#### ⭐ Average Rating")
         rating_range = st.slider(
             "Rating range",
@@ -117,7 +110,6 @@ def render_sidebar_filters(df: pd.DataFrame) -> dict:
 
         st.markdown('<div class="custom-divider"></div>', unsafe_allow_html=True)
 
-        # Year filter
         st.markdown("#### 📅 Release Year")
         year_range = st.slider(
             "Year range",
@@ -130,7 +122,6 @@ def render_sidebar_filters(df: pd.DataFrame) -> dict:
 
         st.markdown('<div class="custom-divider"></div>', unsafe_allow_html=True)
 
-        # Sort
         st.markdown("#### 📊 Sort by")
         sort_option = st.selectbox(
             "Sort option",
