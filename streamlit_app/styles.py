@@ -75,9 +75,10 @@ button[kind="headerNoPadding"],
     margin-bottom: 5px;
 }
 
-/* Centered Button Styling */
+/* Button Box Below the Card */
 .landing-btn-box {
-    margin-top: 20px;
+    margin-top: 30px;
+    z-index: 10001;
 }
 
 div[data-testid="stButton"] button {
@@ -88,9 +89,15 @@ div[data-testid="stButton"] button {
     font-weight: 700 !important;
     border-radius: 50px !important;
     border: none !important;
-    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3) !important;
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4) !important;
     display: block !important;
     margin: 0 auto !important;
+    transition: all 0.3s ease !important;
+}
+
+div[data-testid="stButton"] button:hover {
+    transform: translateY(-2px) scale(1.02) !important;
+    box-shadow: 0 15px 35px rgba(102, 126, 234, 0.6) !important;
 }
 
 /* ── Metrics ── */
