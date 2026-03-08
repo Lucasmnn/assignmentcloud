@@ -5,25 +5,13 @@ from config import SORT_OPTIONS, LANGUAGE_NAMES
 from utils import get_language_label
 
 def reset_filters() -> None:
-    """Callback to clear all filter-related session state keys."""
-    st.session_state.filter_title = ""
     st.session_state.filter_genres = []
     st.session_state.filter_languages = []
     st.session_state.filter_sort = "Year (Newest)"
-
-    if "filter_rating" in st.session_state:
-        del st.session_state.filter_rating
-    if "filter_year" in st.session_state:
-        del st.session_state.filter_year
-    if "selected_movie" in st.session_state:
-        del st.session_state.selected_movie
-
     st.session_state.page = 1
-
 
 @dataclass
 class FilterState:
-    """Container holding current filter values."""
     search_title: str
     selected_genres: list[str]
     selected_languages: list[str]
@@ -35,118 +23,35 @@ class FilterState:
     min_year: int
     max_year: int
 
-
 def render_sidebar_filters(df: pd.DataFrame) -> dict:
-    """Render compact filter widgets inside the Streamlit sidebar."""
-    all_genres = sorted(set(
-        g.strip()
-        for genres_str in df["genres"].dropna()
-        for g in str(genres_str).split("|")
-        if g.strip() and g.strip() != "(no genres listed)"
-    ))
+    all_genres = sorted(set(g.strip() for gs in df["genres"].dropna() for g in str(gs).split("|") if g.strip() and g != "(no genres listed)"))
     all_languages = sorted(df["language"].dropna().unique())
-    
-    valid_years = df["release_year"].dropna().astype(int)
-    min_year = int(valid_years.min()) if not valid_years.empty else 1898
-    max_year = int(valid_years.max()) if not valid_years.empty else 2024
-    
-    min_rating = float(df["avg_rating"].min())
-    max_rating = float(df["avg_rating"].max())
-
+    min_y, max_y = 1898, 2024
+    min_r, max_r = 0.0, 5.0
     with st.sidebar:
         st.markdown('<div class="sidebar-title">⚙️ Filters</div>', unsafe_allow_html=True)
-        
-        # Genre filter
-        st.markdown("#### 🎭 Genre")
-        selected_genres = st.multiselect(
-            "Select genres", options=all_genres, default=[], label_visibility="collapsed", key="filter_genres"
-        )
-
-        # Language filter
-        st.markdown("#### 🌐 Language")
-        flagships = {get_language_label(code): code for code in all_languages if code in LANGUAGE_NAMES}
-        has_others = any(code not in LANGUAGE_NAMES for code in all_languages)
-        options = sorted(flagships.keys())
-        if has_others: options.append("🌍 Others")
-            
-        selected_lang_labels = st.multiselect(
-            "Select languages", options=options, default=[], label_visibility="collapsed", key="filter_languages"
-        )
-        
-        selected_languages = []
-        for lbl in selected_lang_labels:
-            if lbl == "🌍 Others":
-                selected_languages.extend([code for code in all_languages if code not in LANGUAGE_NAMES])
-            else:
-                selected_languages.append(flagships[lbl])
-
-        # Rating filter
-        st.markdown("#### ⭐ Rating")
-        rating_range = st.slider(
-            "Rating range",
-            min_value=round(min_rating, 1),
-            max_value=round(max_rating, 1),
-            value=(round(min_rating, 1), round(max_rating, 1)),
-            step=0.1, label_visibility="collapsed", key="filter_rating"
-        )
-
-        # Year filter
-        st.markdown("#### 📅 Year")
-        year_range = st.slider(
-            "Year range",
-            min_value=min_year, max_value=max_year,
-            value=(min_year, max_year),
-            label_visibility="collapsed", key="filter_year"
-        )
-
-        # Sort
-        st.markdown("#### 📊 Sort")
-        sort_option = st.selectbox(
-            "Sort option", list(SORT_OPTIONS.keys()), index=2, label_visibility="collapsed", key="filter_sort"
-        )
-
-        st.markdown('<div style="margin-top:20px"></div>', unsafe_allow_html=True)
-        st.button("🗑️ Clear All", on_click=reset_filters, use_container_width=True)
-
-    return {
-        "selected_genres": selected_genres,
-        "selected_languages": selected_languages,
-        "rating_range": rating_range,
-        "year_range": year_range,
-        "sort_option": sort_option,
-        "min_rating": round(min_rating, 1),
-        "max_rating": round(max_rating, 1),
-        "min_year": min_year,
-        "max_year": max_year,
-    }
-
+        sel_genres = st.multiselect("Genres", options=all_genres, default=[], key="f_g")
+        flagships = {get_language_label(c): c for c in all_languages if c in LANGUAGE_NAMES}
+        opts = sorted(flagships.keys())
+        if any(c not in LANGUAGE_NAMES for c in all_languages): opts.append("🌍 Others")
+        sel_l_lbls = st.multiselect("Languages", options=opts, default=[], key="f_l")
+        sel_langs = []
+        for l in sel_l_lbls:
+            if l == "🌍 Others": sel_langs.extend([c for c in all_languages if c not in LANGUAGE_NAMES])
+            else: sel_langs.append(flagships[l])
+        r_range = st.slider("Rating", 0.0, 5.0, (0.0, 5.0), 0.1, key="f_r")
+        y_range = st.slider("Year", min_y, max_y, (min_y, max_y), 1, key="f_y")
+        s_opt = st.selectbox("Sort", list(SORT_OPTIONS.keys()), index=2, key="f_s")
+        st.button("🗑️ Clear", on_click=reset_filters)
+    return {"selected_genres": sel_genres, "selected_languages": sel_langs, "rating_range": r_range, "year_range": y_range, "sort_option": s_opt, "min_rating": min_r, "max_rating": max_r, "min_year": min_y, "max_year": max_y}
 
 def apply_filters(df, fs: FilterState):
-    """Filter and sort the movie collection based on state."""
     import re
-    filtered = df.copy()
-
-    if fs.search_title:
-        filtered = filtered[filtered["title"].str.contains(re.escape(fs.search_title), case=False, na=False)]
-
-    if fs.selected_genres:
-        def _has_genre(gs):
-            m_gs = [g.strip() for g in str(gs).split("|")]
-            return any(g in m_gs for g in fs.selected_genres)
-        filtered = filtered[filtered["genres"].apply(_has_genre)]
-
-    if fs.selected_languages:
-        filtered = filtered[filtered["language"].isin(fs.selected_languages)]
-
-    filtered = filtered[
-        (filtered["avg_rating"] >= fs.rating_range[0]) & 
-        (filtered["avg_rating"] <= fs.rating_range[1])
-    ]
-
-    filtered = filtered[
-        (filtered["release_year"] >= fs.year_range[0]) & 
-        (filtered["release_year"] <= fs.year_range[1])
-    ]
-
-    s_col, s_asc = SORT_OPTIONS[fs.sort_option]
-    return filtered.sort_values(s_col, ascending=s_asc).reset_index(drop=True)
+    f = df.copy()
+    if fs.search_title: f = f[f["title"].str.contains(re.escape(fs.search_title), case=False, na=False)]
+    if fs.selected_genres: f = f[f["genres"].apply(lambda gs: any(g in [x.strip() for x in str(gs).split("|")] for g in fs.selected_genres))]
+    if fs.selected_languages: f = f[f["language"].isin(fs.selected_languages)]
+    f = f[(f["avg_rating"] >= fs.rating_range[0]) & (f["avg_rating"] <= fs.rating_range[1])]
+    f = f[(f["release_year"] >= fs.year_range[0]) & (f["release_year"] <= fs.year_range[1])]
+    sc, sa = SORT_OPTIONS[fs.sort_option]
+    return f.sort_values(sc, ascending=sa).reset_index(drop=True)
