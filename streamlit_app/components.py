@@ -6,29 +6,26 @@ from data import fetch_tmdb_details
 from utils import get_genre_class, get_language_label, render_stars
 
 def render_landing_page() -> None:
-    """Render the cinematic landing page."""
-    # Start landing container and content card
+    """Render the cinematic landing page with centered button."""
     st.markdown(
         """
         <div class="landing-container">
             <div class="landing-content">
                 <div style="font-family: 'Outfit', sans-serif; color: #8b8ba7; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; font-size: 14px;">HEC Lausanne</div>
                 <div class="landing-logo">Unil.</div>
-                <div style="font-family: 'Outfit', sans-serif; font-size: 52px; font-weight: 800; color: white; margin-bottom: 5px; line-height: 1.1;">MOVIE CATALOG</div>
-                <div style="font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 600; color: #667eea; margin-bottom: 25px;">LUCAS MENONI</div>
+                <div class="landing-subtitle">Assigment numero 1</div>
                 <div class="landing-description">Explore the vast universe of 27,000+ movies directly from BigQuery.</div>
         """,
         unsafe_allow_html=True,
     )
     
-    # Button wrapper for CSS targeting
-    st.markdown('<div class="landing-btn-wrapper">', unsafe_allow_html=True)
-    if st.button("🚀 Enter Library", key="enter_btn"):
-        st.session_state.entered = True
-        st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
+    # Use columns to center the button in Streamlit
+    col1, col2, col3 = st.columns([1, 2, 1])
+    with col2:
+        if st.button("🚀 Enter Library", key="enter_btn", use_container_width=True):
+            st.session_state.entered = True
+            st.rerun()
 
-    # Close landing content and container
     st.markdown(
         """
             </div>
@@ -70,7 +67,7 @@ def show_detail_view(movie_row, df) -> None:
     tmdb = fetch_tmdb_details(movie_row["title"], int(movie_row["release_year"]))
     col1, col2 = st.columns([1, 2])
     with col1:
-        if tmdb and tmdb.get("poster_path"): st.image(f"{TMDB_IMG_BASE}{tmdb['poster_path']}")
+        if tmdb and tmdb.get("poster_path"): st.image(f"{TMDB_IMG_BASE}{tmdb['poster_path']}", use_container_width=True)
         else: st.markdown('<div style="height:400px; background:#222; border-radius:10px;"></div>', unsafe_allow_html=True)
     with col2:
         st.title(movie_row["title"])
