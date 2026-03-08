@@ -54,7 +54,7 @@ button[kind="headerNoPadding"],
     box-shadow: 0 40px 100px rgba(0,0,0,0.5);
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 10px;
 }
 
 .landing-logo {
@@ -68,30 +68,28 @@ button[kind="headerNoPadding"],
     line-height: 1;
 }
 
-.landing-subtitle {
-    font-family: 'Outfit', sans-serif;
-    font-size: 24px;
-    font-weight: 500;
-    color: #8b8ba7;
-}
-
 .landing-description {
     font-size: 15px;
     color: #6b6b8a;
     line-height: 1.5;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
 }
 
-/* Enter button styling */
-div[data-testid="stButton"].landing-btn-container button {
+/* Centered Button Styling */
+.landing-btn-box {
+    margin-top: 20px;
+}
+
+div[data-testid="stButton"] button {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
     color: white !important;
-    padding: 15px 40px !important;
+    padding: 15px 45px !important;
     font-size: 18px !important;
     font-weight: 700 !important;
     border-radius: 50px !important;
     border: none !important;
     box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3) !important;
+    display: block !important;
     margin: 0 auto !important;
 }
 
