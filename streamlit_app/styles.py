@@ -62,15 +62,27 @@ button[data-testid="stSidebarCollapseButton"],
     margin-bottom: 40px;
 }
 
-.landing-btn button {
+.landing-btn-wrapper {
+    margin-top: 30px;
+    display: flex;
+    justify-content: center;
+}
+
+.landing-btn-wrapper button {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
     color: white !important;
-    padding: 15px 40px !important;
-    font-size: 20px !important;
+    padding: 18px 50px !important;
+    font-size: 22px !important;
     font-weight: 700 !important;
     border-radius: 50px !important;
     border: none !important;
-    box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3) !important;
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4) !important;
+    cursor: pointer !important;
+}
+
+.landing-btn-wrapper button:hover {
+    transform: scale(1.05) !important;
+    box-shadow: 0 15px 35px rgba(102, 126, 234, 0.5) !important;
 }
 
 [data-testid="stSidebar"] {

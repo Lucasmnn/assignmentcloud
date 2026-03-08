@@ -10,11 +10,12 @@ def render_landing_page() -> None:
         """
         <div class="landing-container">
             <div class="landing-content">
-                <div style="font-family: 'Outfit', sans-serif; color: #8b8ba7; font-weight: 600; text-transform: uppercase;">HEC Lausanne</div>
-                <div class="landing-logo">Unil.</div>
-                <div class="landing-subtitle">Assigment numero 1</div>
+                <div style="font-family: 'Outfit', sans-serif; color: #8b8ba7; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; font-size: 14px;">HEC Lausanne</div>
+                <div class="landing-logo" style="margin-bottom: 5px;">Unil.</div>
+                <div style="font-family: 'Outfit', sans-serif; font-size: 52px; font-weight: 800; color: white; margin-bottom: 5px; line-height: 1.1;">MOVIE CATALOG</div>
+                <div style="font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 600; color: #667eea; margin-bottom: 25px;">LUCAS MENONI</div>
                 <div class="landing-description">Explore the vast universe of 27,000+ movies directly from BigQuery.</div>
-                <div class="landing-btn">
+                <div class="landing-btn-wrapper">
         """,
         unsafe_allow_html=True,
     )
