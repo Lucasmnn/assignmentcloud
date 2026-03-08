@@ -22,25 +22,28 @@ button[data-testid="stSidebarCollapseButton"],
 [data-testid="stSidebarCollapsedControl"],
 [data-testid="collapsedControl"],
 button[kind="headerNoPadding"],
-.st-emotion-cache-1vt4y6f,
-[data-testid="stSidebar"] button[title="Collapse sidebar"] {
+.st-emotion-cache-1vt4y6f {
     display: none !important;
     visibility: hidden !important;
 }
 
-/* ── Landing Page ── */
-.landing-container {
-    height: 100vh;
-    width: 100vw;
+/* ── Landing Page Background ── */
+.landing-bg {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: radial-gradient(circle at center, #1a1c2c 0%, #0d0e17 100%);
+    z-index: -1;
+}
+
+/* ── Landing Page Wrapper ── */
+.landing-wrapper {
     display: flex;
     flex-direction: column;
-    justify-content: center;
     align-items: center;
-    background: radial-gradient(circle at center, #1a1c2c 0%, #0d0e17 100%);
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    z-index: 9999;
-    overflow: hidden;
+    justify-content: center;
+    min-height: 80vh;
+    width: 100%;
+    margin-top: 5vh;
 }
 
 .landing-content {
@@ -55,6 +58,7 @@ button[kind="headerNoPadding"],
     display: flex;
     flex-direction: column;
     gap: 10px;
+    margin-bottom: 30px;
 }
 
 .landing-logo {
@@ -72,32 +76,28 @@ button[kind="headerNoPadding"],
     font-size: 15px;
     color: #6b6b8a;
     line-height: 1.5;
-    margin-bottom: 5px;
 }
 
-/* Button Box Below the Card */
-.landing-btn-box {
-    margin-top: 30px;
-    z-index: 10001;
-}
-
+/* Enter Button Styling - Force high visibility */
 div[data-testid="stButton"] button {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
     color: white !important;
-    padding: 15px 45px !important;
-    font-size: 18px !important;
+    padding: 18px 60px !important;
+    font-size: 20px !important;
     font-weight: 700 !important;
     border-radius: 50px !important;
     border: none !important;
-    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4) !important;
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.5) !important;
     display: block !important;
     margin: 0 auto !important;
     transition: all 0.3s ease !important;
+    position: relative;
+    z-index: 1000;
 }
 
 div[data-testid="stButton"] button:hover {
-    transform: translateY(-2px) scale(1.02) !important;
-    box-shadow: 0 15px 35px rgba(102, 126, 234, 0.6) !important;
+    transform: translateY(-3px) scale(1.03) !important;
+    box-shadow: 0 15px 40px rgba(102, 126, 234, 0.7) !important;
 }
 
 /* ── Metrics ── */
@@ -128,7 +128,6 @@ div[data-testid="stMetric"] {
 }
 
 .movie-year { font-size: 0.85em; color: #8b8ba7; margin-bottom: 12px; }
-
 .movie-meta { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
 
 .movie-rating {
