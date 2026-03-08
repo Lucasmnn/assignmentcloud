@@ -23,26 +23,26 @@ button[data-testid="stSidebarCollapseButton"],
     display: none !important;
 }
 
+/* ── Landing Page ── */
 .landing-container {
-    height: 100vh;
+    min-height: 80vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    background: radial-gradient(circle at center, #1a1c2c 0%, #0d0e17 100%);
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    z-index: 9999;
+    padding: 60px 20px;
 }
 
 .landing-content {
     text-align: center;
-    max-width: 800px;
-    padding: 40px;
+    max-width: 700px;
+    width: 100%;
+    padding: 50px;
     background: rgba(255, 255, 255, 0.03);
     backdrop-filter: blur(20px);
     border-radius: 30px;
     border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
 }
 
 .landing-logo {
@@ -52,39 +52,40 @@ button[data-testid="stSidebarCollapseButton"],
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
+    margin-bottom: 5px;
 }
 
-.landing-subtitle {
-    font-family: 'Outfit', sans-serif;
-    font-size: 24px;
-    font-weight: 600;
+.landing-description {
+    font-size: 16px;
     color: #8b8ba7;
     margin-bottom: 40px;
+    line-height: 1.6;
 }
 
-.landing-btn-wrapper {
-    margin-top: 30px;
-    display: flex;
-    justify-content: center;
-}
-
-.landing-btn-wrapper button {
+/* Target the Streamlit button inside landing-btn wrapper */
+.landing-btn-wrapper div[data-testid="stButton"] button {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
     color: white !important;
-    padding: 18px 50px !important;
+    padding: 20px 60px !important;
     font-size: 22px !important;
     font-weight: 700 !important;
     border-radius: 50px !important;
     border: none !important;
-    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4) !important;
-    cursor: pointer !important;
+    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4) !important;
+    width: auto !important;
+    display: block !important;
+    margin: 0 auto !important;
+    height: auto !important;
+    min-height: 60px !important;
 }
 
-.landing-btn-wrapper button:hover {
-    transform: scale(1.05) !important;
-    box-shadow: 0 15px 35px rgba(102, 126, 234, 0.5) !important;
+.landing-btn-wrapper div[data-testid="stButton"] button:hover {
+    transform: translateY(-2px) scale(1.02) !important;
+    box-shadow: 0 15px 40px rgba(102, 126, 234, 0.5) !important;
+    border-color: transparent !important;
 }
 
+/* ── Main Catalog ── */
 [data-testid="stSidebar"] {
     background-color: #0f111a !important;
 }
@@ -94,7 +95,6 @@ button[data-testid="stSidebarCollapseButton"],
     font-size: 20px;
     font-weight: 700;
     color: #667eea;
-    margin-bottom: 20px;
 }
 
 .main-search-container {
@@ -125,7 +125,6 @@ div[data-testid="stMetric"] {
     border-radius: 18px;
     padding: 20px;
     margin-bottom: 20px;
-    cursor: pointer;
     position: relative;
 }
 
@@ -178,5 +177,9 @@ div[data-testid="stMetric"] {
     color: transparent !important;
 }
 
+/* Hide Sidebar when on landing page */
+body[data-landing="true"] [data-testid="stSidebar"] {
+    display: none !important;
+}
 </style>
 """
