@@ -36,7 +36,7 @@ button[kind="headerNoPadding"],
     pointer-events: none;
 }
 
-/* ── Landing Page Card (Compacted) ── */
+/* ── Landing Page Content ── */
 .landing-content {
     text-align: center;
     max-width: 500px;
@@ -48,8 +48,8 @@ button[kind="headerNoPadding"],
     box-shadow: 0 30px 80px rgba(0,0,0,0.5);
     display: flex;
     flex-direction: column;
-    gap: 8px;
-    margin: 40px auto 20px auto; /* Reduced margin */
+    gap: 10px;
+    margin: 0 auto;
 }
 
 .landing-logo {
@@ -67,22 +67,22 @@ button[kind="headerNoPadding"],
     font-size: 14px;
     color: #6b6b8a;
     line-height: 1.4;
-    max-width: 80%;
+    max-width: 85%;
     margin: 0 auto;
 }
 
-/* Enter Button Styling - Force visibility and high z-index */
+/* Enter Button Styling - Force high visibility */
 div[data-testid="stButton"] button {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
     color: white !important;
-    padding: 15px 50px !important;
-    font-size: 18px !important;
+    padding: 16px 50px !important;
+    font-size: 19px !important;
     font-weight: 700 !important;
     border-radius: 50px !important;
     border: none !important;
     box-shadow: 0 10px 25px rgba(102, 126, 234, 0.5) !important;
     display: block !important;
-    margin: 0 auto !important;
+    margin: 30px auto 0 auto !important; /* Spacing above button */
     transition: all 0.2s ease !important;
     position: relative !important;
     z-index: 1000 !important;

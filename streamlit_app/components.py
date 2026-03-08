@@ -10,25 +10,28 @@ def render_landing_page() -> None:
     # Fixed Background
     st.markdown('<div class="landing-bg"></div>', unsafe_allow_html=True)
     
+    # Vertical spacer to center content roughly in the middle
+    st.markdown('<div style="height: 15vh;"></div>', unsafe_allow_html=True)
+    
     # Centering columns
     col1, col2, col3 = st.columns([1, 2, 1])
     
     with col2:
-        # Styled Card (Compacted)
+        # Styled Card
         st.markdown(
             """
             <div class="landing-content">
                 <div style="font-family: 'Outfit', sans-serif; color: #8b8ba7; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; font-size: 11px;">HEC Lausanne</div>
                 <div class="landing-logo">Unil.</div>
                 <div style="font-family: 'Outfit', sans-serif; font-size: 48px; font-weight: 800; color: white; margin-bottom: 2px; line-height: 1.1;">MOVIE CATALOG</div>
-                <div style="font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 600; color: #667eea; margin-bottom: 15px;">LUCAS MENONI</div>
+                <div style="font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 600; color: #667eea; margin-bottom: 10px;">LUCAS MENONI</div>
                 <div class="landing-description">Explore the vast universe of 27,000+ movies directly from BigQuery.</div>
             </div>
             """,
             unsafe_allow_html=True,
         )
         
-        # Standard Streamlit Button - Guaranteed visibility
+        # Standard Streamlit Button - Positioned naturally below the card
         if st.button("🚀 Enter Library", key="enter_btn", use_container_width=True):
             st.session_state.entered = True
             st.rerun()
