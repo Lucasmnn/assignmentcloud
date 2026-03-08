@@ -17,12 +17,13 @@ html, body, [class*="css"] {
 footer {visibility: hidden;}
 header {visibility: hidden;}
 
-/* Hide the sidebar collapse/close button so it stays permanently open */
+/* Hide the sidebar collapse/close button */
 button[data-testid="stSidebarCollapseButton"],
 [data-testid="stSidebarCollapsedControl"],
 [data-testid="collapsedControl"],
 button[kind="headerNoPadding"],
-.st-emotion-cache-1vt4y6f {
+.st-emotion-cache-1vt4y6f,
+[data-testid="stSidebar"] button[title="Collapse sidebar"] {
     display: none !important;
     visibility: hidden !important;
 }
@@ -39,17 +40,21 @@ button[kind="headerNoPadding"],
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
     z-index: 9999;
-    overflow: hidden; /* No scroll on landing */
+    overflow: hidden;
 }
 
 .landing-content {
     text-align: center;
-    max-width: 600px;
-    padding: 30px;
+    max-width: 550px;
+    padding: 40px;
     background: rgba(255, 255, 255, 0.03);
-    backdrop-filter: blur(20px);
-    border-radius: 25px;
+    backdrop-filter: blur(25px);
+    border-radius: 30px;
     border: 1px solid rgba(255, 255, 255, 0.05);
+    box-shadow: 0 40px 100px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
 }
 
 .landing-logo {
@@ -59,7 +64,8 @@ button[kind="headerNoPadding"],
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    margin-bottom: 0px;
+    margin: 0;
+    line-height: 1;
 }
 
 .landing-subtitle {
@@ -67,157 +73,126 @@ button[kind="headerNoPadding"],
     font-size: 24px;
     font-weight: 500;
     color: #8b8ba7;
-    margin-bottom: 10px;
 }
 
 .landing-description {
     font-size: 15px;
     color: #6b6b8a;
-    margin-bottom: 30px;
+    line-height: 1.5;
+    margin-bottom: 10px;
 }
 
-/* ── Sidebar styling ── */
-[data-testid="stSidebar"] {
-    background: #0f111a !important;
+/* Enter button styling */
+div[data-testid="stButton"].landing-btn-container button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+    padding: 15px 40px !important;
+    font-size: 18px !important;
+    font-weight: 700 !important;
+    border-radius: 50px !important;
+    border: none !important;
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3) !important;
+    margin: 0 auto !important;
 }
 
-.sidebar-title {
-    font-family: 'Outfit', sans-serif;
-    font-size: 20px;
-    font-weight: 700;
-    color: #667eea;
-    margin-bottom: 20px;
-}
-
-/* ── Metric cards (Ancien style) ── */
+/* ── Metrics ── */
 div[data-testid="stMetric"] {
-    background: linear-gradient(135deg, rgba(102, 126, 234, 0.1), rgba(118, 75, 162, 0.1));
-    padding: 18px 22px;
-    border-radius: 16px;
-    border: 1px solid rgba(255,255,255,0.05);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    background: rgba(255, 255, 255, 0.03) !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    padding: 15px 20px !important;
+    border-radius: 16px !important;
 }
 
-/* ── Movie Card (Ancien style) ── */
+/* ── Movie Card ── */
 .movie-card {
     background: rgba(255, 255, 255, 0.02);
-    border: 1px solid rgba(255,255,255,0.06);
+    border: 1px solid rgba(255, 255, 255, 0.06);
     border-radius: 16px;
-    padding: 20px;
-    margin-bottom: 16px;
-    transition: transform 0.2s ease;
+    padding: 24px;
+    margin-bottom: 20px;
+    position: relative;
     cursor: pointer;
     min-height: 180px;
-    position: relative;
-}
-
-.movie-card:hover {
-    transform: translateY(-4px);
-    background: rgba(255, 255, 255, 0.04);
 }
 
 .movie-title {
-    font-size: 1.1em;
+    font-size: 1.15em;
     font-weight: 700;
     color: white;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
 }
 
-.movie-year {
-    font-size: 0.85em;
-    color: #8b8ba7;
-    margin-bottom: 12px;
-}
+.movie-year { font-size: 0.85em; color: #8b8ba7; margin-bottom: 12px; }
 
-.movie-meta {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 12px;
-}
+.movie-meta { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
 
 .movie-rating {
     background: rgba(255, 193, 7, 0.1);
     color: #ffc107;
-    padding: 4px 10px;
+    padding: 5px 12px;
     border-radius: 20px;
-    font-size: 0.85em;
+    font-size: 0.88em;
     font-weight: 600;
 }
 
 .movie-lang {
     background: rgba(102, 126, 234, 0.1);
     color: #a5b4fc;
-    padding: 4px 10px;
+    padding: 5px 12px;
     border-radius: 20px;
-    font-size: 0.8em;
+    font-size: 0.82em;
     font-weight: 500;
 }
 
-.genre-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-}
-
 .genre-badge {
-    padding: 3px 10px;
+    padding: 4px 10px;
     border-radius: 20px;
     font-size: 0.75em;
     font-weight: 600;
-    background: rgba(255,255,255,0.05);
+    background: rgba(255, 255, 255, 0.05);
     color: #8b8ba7;
+    margin-right: 5px;
+    margin-top: 5px;
 }
 
-/* ── Clickable Movie Cards Overlay ── */
+/* Full coverage button for cards */
 [data-testid="stColumn"]:has(.movie-card) .stButton {
     position: absolute !important;
-    top: 0 !important;
-    left: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
+    top: 0 !important; left: 0 !important;
+    width: 100% !important; height: 100% !important;
     z-index: 10 !important;
-    margin: 0 !important;
-}
-[data-testid="stColumn"]:has(.movie-card) button {
-    height: 100% !important;
-    width: 100% !important;
-    opacity: 0 !important;
-    background: transparent !important;
-    border: none !important;
 }
 
-/* ── Main content restructuring ── */
+[data-testid="stColumn"]:has(.movie-card) button {
+    opacity: 0 !important;
+    width: 100% !important; height: 100% !important;
+    border: none !important;
+    background: transparent !important;
+}
+
+/* ── UI Components ── */
 .main-search-container {
     background: rgba(255, 255, 255, 0.02);
     border: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: 20px;
-    padding: 20px;
+    padding: 24px;
     margin-bottom: 24px;
 }
 
 .search-title {
     font-family: 'Outfit', sans-serif;
-    font-size: 22px;
+    font-size: 24px;
     font-weight: 700;
     color: white;
 }
 
-.active-filters-bar {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    margin-bottom: 16px;
-}
-
 .filter-pill {
-    background: rgba(102, 126, 234, 0.1);
+    background: rgba(102, 126, 234, 0.12);
     color: #a5b4fc;
-    padding: 4px 12px;
+    padding: 5px 14px;
     border-radius: 20px;
-    font-size: 0.8em;
+    font-size: 0.82em;
     font-weight: 600;
 }
-
 </style>
 """
