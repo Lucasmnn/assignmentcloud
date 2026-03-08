@@ -7,33 +7,31 @@ from utils import get_genre_class, get_language_label, render_stars
 
 def render_landing_page() -> None:
     """Render the cinematic landing page with guaranteed button visibility."""
-    # Background div
+    # Fixed Background
     st.markdown('<div class="landing-bg"></div>', unsafe_allow_html=True)
     
-    # Content wrapper
-    st.markdown('<div class="landing-wrapper">', unsafe_allow_html=True)
+    # Centering columns
+    col1, col2, col3 = st.columns([1, 2, 1])
     
-    # Central card
-    st.markdown(
-        """
-        <div class="landing-content">
-            <div style="font-family: 'Outfit', sans-serif; color: #8b8ba7; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; font-size: 13px;">HEC Lausanne</div>
-            <div class="landing-logo">Unil.</div>
-            <div style="font-family: 'Outfit', sans-serif; font-size: 52px; font-weight: 800; color: white; margin-bottom: 5px; line-height: 1.1;">MOVIE CATALOG</div>
-            <div style="font-family: 'Outfit', sans-serif; font-size: 22px; font-weight: 600; color: #667eea; margin-bottom: 20px;">LUCAS MENONI</div>
-            <div class="landing-description">Explore the vast universe of 27,000+ movies directly from BigQuery.</div>
-        </div>
-        """,
-        unsafe_allow_html=True,
-    )
-    
-    # Button in normal Streamlit flow
-    if st.button("🚀 Enter Library", key="enter_btn"):
-        st.session_state.entered = True
-        st.rerun()
-
-    # Close wrapper
-    st.markdown('</div>', unsafe_allow_html=True)
+    with col2:
+        # Styled Card
+        st.markdown(
+            """
+            <div class="landing-content">
+                <div style="font-family: 'Outfit', sans-serif; color: #8b8ba7; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; font-size: 13px;">HEC Lausanne</div>
+                <div class="landing-logo">Unil.</div>
+                <div style="font-family: 'Outfit', sans-serif; font-size: 52px; font-weight: 800; color: white; margin-bottom: 5px; line-height: 1.1;">MOVIE CATALOG</div>
+                <div style="font-family: 'Outfit', sans-serif; font-size: 22px; font-weight: 600; color: #667eea; margin-bottom: 20px;">LUCAS MENONI</div>
+                <div class="landing-description">Explore the vast universe of 27,000+ movies directly from BigQuery.</div>
+            </div>
+            """,
+            unsafe_allow_html=True,
+        )
+        
+        # Standard Streamlit Button - Guaranteed to be interactive
+        if st.button("🚀 Enter Library", key="enter_btn", use_container_width=True):
+            st.session_state.entered = True
+            st.rerun()
 
 def render_main_search_bar(df: pd.DataFrame) -> str:
     """Render the search bar at the top of the main results column."""

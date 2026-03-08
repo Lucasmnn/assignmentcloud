@@ -32,20 +32,11 @@ button[kind="headerNoPadding"],
     position: fixed;
     top: 0; left: 0; width: 100vw; height: 100vh;
     background: radial-gradient(circle at center, #1a1c2c 0%, #0d0e17 100%);
-    z-index: -1;
+    z-index: -100; /* Far back */
+    pointer-events: none;
 }
 
-/* ── Landing Page Wrapper ── */
-.landing-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 80vh;
-    width: 100%;
-    margin-top: 5vh;
-}
-
+/* ── Landing Page Card ── */
 .landing-content {
     text-align: center;
     max-width: 550px;
@@ -57,8 +48,8 @@ button[kind="headerNoPadding"],
     box-shadow: 0 40px 100px rgba(0,0,0,0.5);
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    margin-bottom: 30px;
+    gap: 15px;
+    margin: 100px auto 30px auto; /* Vertical centering */
 }
 
 .landing-logo {
@@ -78,7 +69,7 @@ button[kind="headerNoPadding"],
     line-height: 1.5;
 }
 
-/* Enter Button Styling - Force high visibility */
+/* Enter Button Styling - Force visibility and high z-index */
 div[data-testid="stButton"] button {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
     color: white !important;
@@ -91,8 +82,10 @@ div[data-testid="stButton"] button {
     display: block !important;
     margin: 0 auto !important;
     transition: all 0.3s ease !important;
-    position: relative;
-    z-index: 1000;
+    position: relative !important;
+    z-index: 1000 !important;
+    opacity: 1 !important;
+    visibility: visible !important;
 }
 
 div[data-testid="stButton"] button:hover {
