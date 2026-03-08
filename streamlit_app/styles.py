@@ -32,29 +32,29 @@ button[kind="headerNoPadding"],
     position: fixed;
     top: 0; left: 0; width: 100vw; height: 100vh;
     background: radial-gradient(circle at center, #1a1c2c 0%, #0d0e17 100%);
-    z-index: -100; /* Far back */
+    z-index: -100;
     pointer-events: none;
 }
 
-/* ── Landing Page Card ── */
+/* ── Landing Page Card (Compacted) ── */
 .landing-content {
     text-align: center;
-    max-width: 550px;
-    padding: 40px;
+    max-width: 500px;
+    padding: 30px;
     background: rgba(255, 255, 255, 0.03);
     backdrop-filter: blur(25px);
-    border-radius: 30px;
+    border-radius: 25px;
     border: 1px solid rgba(255, 255, 255, 0.05);
-    box-shadow: 0 40px 100px rgba(0,0,0,0.5);
+    box-shadow: 0 30px 80px rgba(0,0,0,0.5);
     display: flex;
     flex-direction: column;
-    gap: 15px;
-    margin: 100px auto 30px auto; /* Vertical centering */
+    gap: 8px;
+    margin: 40px auto 20px auto; /* Reduced margin */
 }
 
 .landing-logo {
     font-family: 'Outfit', sans-serif;
-    font-size: 80px;
+    font-size: 70px;
     font-weight: 800;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     -webkit-background-clip: text;
@@ -64,33 +64,33 @@ button[kind="headerNoPadding"],
 }
 
 .landing-description {
-    font-size: 15px;
+    font-size: 14px;
     color: #6b6b8a;
-    line-height: 1.5;
+    line-height: 1.4;
+    max-width: 80%;
+    margin: 0 auto;
 }
 
 /* Enter Button Styling - Force visibility and high z-index */
 div[data-testid="stButton"] button {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
     color: white !important;
-    padding: 18px 60px !important;
-    font-size: 20px !important;
+    padding: 15px 50px !important;
+    font-size: 18px !important;
     font-weight: 700 !important;
     border-radius: 50px !important;
     border: none !important;
-    box-shadow: 0 10px 30px rgba(102, 126, 234, 0.5) !important;
+    box-shadow: 0 10px 25px rgba(102, 126, 234, 0.5) !important;
     display: block !important;
     margin: 0 auto !important;
-    transition: all 0.3s ease !important;
+    transition: all 0.2s ease !important;
     position: relative !important;
     z-index: 1000 !important;
-    opacity: 1 !important;
-    visibility: visible !important;
 }
 
 div[data-testid="stButton"] button:hover {
-    transform: translateY(-3px) scale(1.03) !important;
-    box-shadow: 0 15px 40px rgba(102, 126, 234, 0.7) !important;
+    transform: translateY(-2px) scale(1.02) !important;
+    box-shadow: 0 15px 35px rgba(102, 126, 234, 0.7) !important;
 }
 
 /* ── Metrics ── */

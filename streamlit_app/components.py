@@ -6,7 +6,7 @@ from data import fetch_tmdb_details
 from utils import get_genre_class, get_language_label, render_stars
 
 def render_landing_page() -> None:
-    """Render the cinematic landing page with guaranteed button visibility."""
+    """Render the cinematic landing page with zero-scroll button visibility."""
     # Fixed Background
     st.markdown('<div class="landing-bg"></div>', unsafe_allow_html=True)
     
@@ -14,21 +14,21 @@ def render_landing_page() -> None:
     col1, col2, col3 = st.columns([1, 2, 1])
     
     with col2:
-        # Styled Card
+        # Styled Card (Compacted)
         st.markdown(
             """
             <div class="landing-content">
-                <div style="font-family: 'Outfit', sans-serif; color: #8b8ba7; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; font-size: 13px;">HEC Lausanne</div>
+                <div style="font-family: 'Outfit', sans-serif; color: #8b8ba7; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; font-size: 11px;">HEC Lausanne</div>
                 <div class="landing-logo">Unil.</div>
-                <div style="font-family: 'Outfit', sans-serif; font-size: 52px; font-weight: 800; color: white; margin-bottom: 5px; line-height: 1.1;">MOVIE CATALOG</div>
-                <div style="font-family: 'Outfit', sans-serif; font-size: 22px; font-weight: 600; color: #667eea; margin-bottom: 20px;">LUCAS MENONI</div>
+                <div style="font-family: 'Outfit', sans-serif; font-size: 48px; font-weight: 800; color: white; margin-bottom: 2px; line-height: 1.1;">MOVIE CATALOG</div>
+                <div style="font-family: 'Outfit', sans-serif; font-size: 20px; font-weight: 600; color: #667eea; margin-bottom: 15px;">LUCAS MENONI</div>
                 <div class="landing-description">Explore the vast universe of 27,000+ movies directly from BigQuery.</div>
             </div>
             """,
             unsafe_allow_html=True,
         )
         
-        # Standard Streamlit Button - Guaranteed to be interactive
+        # Standard Streamlit Button - Guaranteed visibility
         if st.button("🚀 Enter Library", key="enter_btn", use_container_width=True):
             st.session_state.entered = True
             st.rerun()
