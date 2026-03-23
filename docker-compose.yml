@@ -1,0 +1,72 @@
+version: "3.9"
+
+# ──────────────────────────────────────────────────────────────────
+# MovieFlix — local development stack
+#
+# Usage:
+#   docker-compose up --build
+#
+# After first start, index movies in Elasticsearch:
+#   curl -X POST http://localhost:8080/setup/index
+#
+# Optional — train BigQuery ML model:
+#   curl -X POST http://localhost:8080/train
+# ──────────────────────────────────────────────────────────────────
+
+services:
+
+  # ── Elasticsearch (single-node, no auth for local dev) ──────────
+  elasticsearch:
+    image: elasticsearch:8.13.0
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - ES_JAVA_OPTS=-Xms512m -Xmx512m
+    ports:
+      - "9200:9200"
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9200 || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  # ── Flask backend ────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      - PORT=8080
+      - BQ_PROJECT_ID=${BQ_PROJECT_ID}
+      - BQ_DATASET=${BQ_DATASET:-movielens}
+      - TMDB_API_KEY=${TMDB_API_KEY}
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - ELASTICSEARCH_INDEX=movies
+      # Mount GCP credentials for local BigQuery access:
+      - GOOGLE_APPLICATION_CREDENTIALS=/secrets/gcp_key.json
+    volumes:
+      # Point to your downloaded GCP service-account key:
+      - ${GOOGLE_APPLICATION_CREDENTIALS:-~/.config/gcloud/application_default_credentials.json}:/secrets/gcp_key.json:ro
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+
+  # ── Streamlit frontend ───────────────────────────────────────────
+  frontend:
+    build:
+      context: ./streamlit_app
+      dockerfile: Dockerfile
+    ports:
+      - "8501:8080"
+    environment:
+      - BACKEND_URL=http://backend:8080
+      - TMDB_API_KEY=${TMDB_API_KEY}
+    depends_on:
+      - backend
+
+volumes:
+  es_data:

@@ -1,7 +1,7 @@
 streamlit==1.41.0
-functions-framework==3.8.1
 requests==2.32.3
-pandas==2.2.2
 python-dotenv==1.0.1
+# Legacy dependencies kept for backward-compatibility with Part-1 code
 google-cloud-bigquery==3.20.1
 db-dtypes==1.2.0
+pandas==2.2.2
