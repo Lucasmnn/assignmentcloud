@@ -7,6 +7,7 @@ from styles import inject_css
 from data import fetch_movies
 from filters import render_sidebar_filters, apply_filters
 from components import (
+    render_landing_page,
     render_movie_card_html,
     show_detail_view,
     render_metrics,
@@ -27,6 +28,13 @@ inject_css()
 
 def main() -> None:
     """Application entry point."""
+
+    if "entered" not in st.session_state:
+        st.session_state.entered = False
+
+    if not st.session_state.entered:
+        render_landing_page()
+        return
 
     with st.spinner("🎬 Loading movie catalog..."):
         df = fetch_movies()

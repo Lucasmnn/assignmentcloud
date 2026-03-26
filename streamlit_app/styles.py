@@ -7,8 +7,8 @@ def inject_css() -> None:
 
 _CSS = """
 <style>
-/* ── Import Google Font ── */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+/* ── Import Google Fonts ── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;800&display=swap');
 
 /* ── Global ── */
 html, body, [class*="css"] {
@@ -27,6 +27,118 @@ button[data-testid="stSidebarCollapseButton"],
 button[kind="headerNoPadding"] {
     display: none !important;
     visibility: hidden !important;
+}
+
+/* ── Landing Page ── */
+.landing-container {
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: radial-gradient(circle at center, #1a1c2c 0%, #0d0e17 100%);
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    z-index: 9999;
+    overflow: hidden;
+}
+
+.landing-content {
+    text-align: center;
+    max-width: 600px;
+    padding: 50px;
+    background: rgba(255, 255, 255, 0.03);
+    backdrop-filter: blur(30px);
+    border-radius: 40px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 50px 120px rgba(0,0,0,0.6);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    animation: fadeIn 1.2s ease-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.landing-university {
+    font-family: 'Outfit', sans-serif;
+    color: #8b8ba7;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.landing-logo {
+    font-family: 'Outfit', sans-serif;
+    font-size: 90px;
+    font-weight: 800;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin: 0;
+    line-height: 0.9;
+}
+
+.landing-title {
+    font-family: 'Outfit', sans-serif;
+    font-size: 56px;
+    font-weight: 800;
+    color: white;
+    margin-bottom: 2px;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+}
+
+.landing-author {
+    font-family: 'Outfit', sans-serif;
+    font-size: 24px;
+    font-weight: 600;
+    color: #667eea;
+    margin-bottom: 24px;
+    letter-spacing: 0.05em;
+}
+
+.landing-description {
+    font-size: 17px;
+    color: #a0a0c0;
+    line-height: 1.6;
+    margin-bottom: 10px;
+    font-weight: 400;
+}
+
+.landing-btn-wrapper {
+    margin-top: 30px;
+    width: 100%;
+}
+
+/* More robust selector for the landing page button */
+div.landing-content div[data-testid="stButton"] button {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: white !important;
+    padding: 16px 60px !important;
+    font-size: 20px !important;
+    font-weight: 700 !important;
+    border-radius: 60px !important;
+    border: none !important;
+    box-shadow: 0 15px 35px rgba(102, 126, 234, 0.4) !important;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+    margin: 20px auto 0 !important;
+    display: flex !important;
+    justify-content: center !important;
+    align-items: center !important;
+    min-width: 250px !important;
+}
+
+div.landing-content div[data-testid="stButton"] button:hover {
+    transform: scale(1.05) translateY(-3px) !important;
+    box-shadow: 0 20px 45px rgba(102, 126, 234, 0.5) !important;
+    filter: brightness(1.1);
 }
 
 /* ── Sidebar styling ── */

@@ -8,6 +8,41 @@ from data import fetch_tmdb_details
 from utils import get_genre_class, get_language_label, render_stars
 
 
+def render_landing_page() -> None:
+    """Render a premium cinematic landing page."""
+    # We open the containers
+    st.markdown(
+        """
+        <div class="landing-container">
+            <div class="landing-content">
+                <div class="landing-university">HEC Lausanne</div>
+                <div class="landing-logo">Unil.</div>
+                <div class="landing-title">MOVIE CATALOG</div>
+                <div class="landing-author">LUCAS MENONI</div>
+                <div class="landing-description">
+                    Discover a curated universe of 27,000+ cinematic masterpieces, 
+                    powered by BigQuery and TMDB.
+                </div>
+        """,
+        unsafe_allow_html=True,
+    )
+    
+    # The button is placed here. Streamlit will wrap it in its own div.
+    # We use CSS to make sure this div doesn't break our layout.
+    if st.button("🚀 Enter Library", key="landing_enter_btn", use_container_width=True):
+        st.session_state.entered = True
+        st.rerun()
+
+    # We close the containers
+    st.markdown(
+        """
+            </div>
+        </div>
+        """,
+        unsafe_allow_html=True,
+    )
+
+
 
 def render_movie_card_html(movie: pd.Series) -> str:
    
